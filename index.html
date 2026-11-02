@@ -144,7 +144,7 @@
       </div>
 
       <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
-        <span class="text-[11px] font-bold text-stone-400 block mb-1">صافي المبيعات</span>
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">صافي المبيعات (المحصل)</span>
         <div class="flex items-center justify-between">
           <span class="text-xl font-black text-emerald-400" id="stat-net-sales">0 ج.م</span>
           <i class="fa-solid fa-cash-register text-emerald-500/40 text-lg"></i>
@@ -152,7 +152,7 @@
       </div>
 
       <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
-        <span class="text-[11px] font-bold text-stone-400 block mb-1">إجمالي التوصيل</span>
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">إجمالي التوصيل (المحصل)</span>
         <div class="flex items-center justify-between">
           <span class="text-xl font-black text-blue-400" id="stat-total-delivery">0 ج.م</span>
           <i class="fa-solid fa-motorcycle text-blue-500/40 text-lg"></i>
@@ -160,7 +160,7 @@
       </div>
 
       <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between col-span-2 sm:col-span-1 lg:col-span-2 bg-gradient-to-r from-amber-950/30 to-stone-950">
-        <span class="text-[11px] font-bold text-amber-400 block mb-1">الإجمالي الكلي (المحصل)</span>
+        <span class="text-[11px] font-bold text-amber-400 block mb-1">الإجمالي الكلي المحصل (خزينة)</span>
         <div class="flex items-center justify-between">
           <span class="text-2xl font-black text-amber-400" id="stat-total-revenue">0 ج.م</span>
           <i class="fa-solid fa-wallet text-amber-500 text-xl"></i>
@@ -498,13 +498,13 @@
           <button class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-4 py-2 rounded-xl font-black transition shadow flex items-center gap-1.5 cursor-pointer" onclick="printDriversCollectionReport()">
             <i class="fa-solid fa-print"></i> طباعة إجمالي كل الطيارين
           </button>
-          <button class="bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs px-4 py-2 rounded-xl font-bold transition cursor-pointer" onclick="closeDriversCollectionModal()">إغلاق</button>
+          <button class="bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs px-4 py-2 rounded-bold transition cursor-pointer" onclick="closeDriversCollectionModal()">إغلاق</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- مودال تقرير تقفيل الشيفت (فصل التيك أواي عن الدليفري عن الصالة مع عرض الأيام السابقة) -->
+  <!-- مودال تقرير تقفيل الشيفت -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5" id="shift-report-modal">
     <div class="bg-stone-950 border border-stone-800 w-full max-w-3xl max-h-[92vh] rounded-3xl flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 border-b border-stone-800 flex justify-between items-center bg-stone-900">
@@ -514,7 +514,6 @@
         <button class="text-stone-400 hover:text-white text-xl p-1 cursor-pointer" onclick="closeShiftReportModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- اختيار اليوم للاطلاع على تقفيل الأيام السابقة -->
       <div class="p-4 bg-stone-900/50 border-b border-stone-800 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2 w-full">
           <label class="text-xs text-stone-400 font-bold shrink-0"><i class="fa-solid fa-calendar-days text-amber-500"></i> اختر يوم التقفيل للمراجعة:</label>
@@ -635,7 +634,7 @@
       { id: 83, name: "باكيت بطاطس شيدر ", price: 30, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
 
       { id: 84, name: "تومية عادي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
-      { id: 85, name: "تومية سبايسي ", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 85, name: "تومية سبايسي ", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRecall-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 86, name: "تومية صيامي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 87, name: "صوص بربكيو", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 88, name: "صوص شيدر", price: 25, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
@@ -644,7 +643,7 @@
 
       { id: 91, name: "كيلو كرسبي", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8B.jpg" },
       { id: 92, name: "كيلو زنجر", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8B.jpg" },
-      { id: 93, name: "كيلو سكالوب ", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHClqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8B.jpg" }
+      { id: 93, name: "كيلو سكالوب ", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8B.jpg" }
     ];
 
     const defaultDriversList = ["مؤمن طارق", "مازن طارق", "حمو النيما", "احمد حامد", "علي السيد"];
@@ -1134,12 +1133,16 @@
     }
 
     function updateStats(ordersArray) {
-      const validOrders = ordersArray.filter(o => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
       const pendingCount = ordersArray.filter(o => (o.status || 'جديد') === 'جديد' || o.status === 'قيد التحضير' || o.status === 'في الطريق').length;
-      
       const totalCount = ordersArray.length;
-      const totalRev = validOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-      const totalDel = validOrders.reduce((sum, o) => sum + Number(o.deliveryFee || 0), 0);
+
+      const collectedOrders = ordersArray.filter(o => {
+        const st = o.status || 'جديد';
+        return st === 'تم التسليم' || st === 'مكتمل';
+      });
+
+      const totalRev = collectedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+      const totalDel = collectedOrders.reduce((sum, o) => sum + Number(o.deliveryFee || 0), 0);
       const netSales = totalRev - totalDel;
 
       document.getElementById('stat-total-orders').innerText = totalCount;
@@ -1580,16 +1583,30 @@
       const order = rawOrdersData[key];
       if (!order) { if (callback) callback(); return; }
       const orderId = order.orderId || order.id || key.slice(-5);
+      const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+      const dateStr = order.date || (order.createdAt ? order.createdAt.split('T')[0] : '');
+
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
-        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
-          <h2 style="font-size: 20px; font-weight: 900;">بون مطبخ 👨‍🍳</h2>
-          <p style="font-size: 18px; font-weight: 900;">رقم الطلب: #${orderId} (${order.orderType || 'توصيل'})</p>
+        <div style="text-align: center; font-size: 16px; font-weight: 900; margin-bottom: 2px;">بون مطبخ</div>
+        <div style="text-align: center; font-size: 13px; font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 6px;">
+          رقم الطلب: #${orderId} | النوع: ${order.orderType || 'توصيل'}
+          <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">التاريخ: ${dateStr} | الوقت: ${timeStr}</div>
         </div>
         <table style="width: 100%; text-align: right; font-size: 14px; border-collapse: collapse; font-weight: 900;">
-          <thead><tr style="border-bottom: 2px solid #000;"><th>الصنف</th><th style="text-align: center;">العدد</th></tr></thead>
+          <thead>
+            <tr style="border-bottom: 2px solid #000;">
+              <th style="padding-bottom: 4px; text-align: right;">الصنف</th>
+              <th style="padding-bottom: 4px; text-align: center; width: 50px;">العدد</th>
+            </tr>
+          </thead>
           <tbody>
-            ${(order.items || []).map(i => `<tr style="border-bottom: 1px dashed #000;"><td style="padding: 4px 0;">${i.name}</td><td style="text-align: center; padding: 4px 0; font-size: 18px;">${i.qty || 1}</td></tr>`).join('')}
+            ${(order.items || []).map(i => `
+              <tr style="border-bottom: 1px dashed #000;">
+                <td style="padding: 6px 0;">${i.name}</td>
+                <td style="text-align: center; padding: 6px 0; font-size: 16px;">${i.qty || 1}</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       `;
@@ -1906,7 +1923,15 @@
         return selectedDate ? (orderDate && orderDate === selectedDate) : true;
       });
 
-      const validEntries = entries.filter(([k, o]) => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
+      const validEntries = entries.filter(([k, o]) => {
+        const st = o.status || 'جديد';
+        const isNotCancelled = st !== 'ملغي' && st !== 'مرفوض';
+        const tp = o.orderType || o.type || 'توصيل';
+        if (tp === 'توصيل' || tp === 'delivery') {
+          return isNotCancelled && (st === 'تم التسليم' || st === 'مكتمل');
+        }
+        return isNotCancelled;
+      });
 
       let takeawayOrders = validEntries.filter(([k, o]) => {
         const tp = o.orderType || o.type || 'توصيل';
@@ -1936,7 +1961,7 @@
             <span class="text-xs font-bold text-stone-200 block mt-1">المبلغ: ${takeawayTotal} ج.م</span>
           </div>
           <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
-            <span class="text-stone-400 text-[11px] block font-bold">🛵 دليفري (Delivery)</span>
+            <span class="text-stone-400 text-[11px] block font-bold">🛵 دليفري (Delivery المحصل)</span>
             <span class="text-lg font-black text-blue-400">${deliveryOrders.length} طلب</span>
             <span class="text-xs font-bold text-stone-200 block mt-1">المبلغ: ${deliveryTotal} ج.م</span>
           </div>
@@ -1947,9 +1972,9 @@
           </div>
         </div>
         <div class="bg-stone-900 p-4 rounded-2xl border border-stone-800 space-y-2 text-xs">
-          <div class="flex justify-between font-bold"><span>إجمالي الطلبات الكلي:</span><span>${validEntries.length} طلب</span></div>
+          <div class="flex justify-between font-bold"><span>إجمالي الطلبات المحصلة الكلي:</span><span>${validEntries.length} طلب</span></div>
           <div class="flex justify-between text-sm font-black text-amber-400 border-t border-stone-800 pt-2">
-            <span>الإجمالي المحصل (شامل التيك أواي والدليفري والصالة):</span>
+            <span>الإجمالي المحصل (شامل التيك أواي ودليفري المحصل والصالة):</span>
             <span>${grandTotal} ج.م</span>
           </div>
         </div>
@@ -1965,7 +1990,15 @@
         return selectedDate ? (orderDate && orderDate === selectedDate) : true;
       });
 
-      const validEntries = entries.filter(([k, o]) => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
+      const validEntries = entries.filter(([k, o]) => {
+        const st = o.status || 'جديد';
+        const isNotCancelled = st !== 'ملغي' && st !== 'مرفوض';
+        const tp = o.orderType || o.type || 'توصيل';
+        if (tp === 'توصيل' || tp === 'delivery') {
+          return isNotCancelled && (st === 'تم التسليم' || st === 'مكتمل');
+        }
+        return isNotCancelled;
+      });
 
       let takeawayOrders = validEntries.filter(([k, o]) => {
         const tp = o.orderType || o.type || 'توصيل';
@@ -1994,7 +2027,7 @@
         </div>
         <div style="font-size: 13px; font-weight: 900; line-height: 1.8; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
           <p>🛍️ تيك أواي: ${takeawayOrders.length} طلب | ${takeawayTotal} ج.م</p>
-          <p>🛵 دليفري: ${deliveryOrders.length} طلب | ${deliveryTotal} ج.م</p>
+          <p>🛵 دليفري (المحصل): ${deliveryOrders.length} طلب | ${deliveryTotal} ج.م</p>
           <p>🍽️ صالة: ${dineinOrders.length} طلب | ${dineinTotal} ج.م</p>
         </div>
         <div style="font-size: 15px; font-weight: 900; text-align: center;">
