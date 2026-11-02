@@ -1541,69 +1541,37 @@
       printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
           <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
-          <p style="font-size: 13px; font-weight: bold; margin: 2px 0;">أصالة المذاق الشامي</p>
-          <div style="font-size: 18px; font-weight: 900; margin-top: 6px; border: 2px solid #000; padding: 4px 0; background: #eee;">
-            فاتورة طلب #${orderId}
-          </div>
-          <p style="font-size: 14px; font-weight: 900; margin-top: 6px;">نوع الطلب: ${order.orderType || 'توصيل'}</p>
+          <div style="font-size: 18px; font-weight: 900; margin-top: 6px; border: 2px solid #000; padding: 4px 0;">فاتورة #${orderId}</div>
+          <p style="font-size: 14px; font-weight: 900; margin-top: 6px;">النوع: ${order.orderType || 'توصيل'}</p>
           <p style="font-size: 11px; font-weight: bold;">${timeStr}</p>
         </div>
-
-        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; font-weight: 800;">
+        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 800;">
           <p style="margin:3px 0;">العميل: ${custName}</p>
-          <p style="margin:3px 0;">الهاتف: ${custPhone}</p>
-          ${custPhone2 ? `<p style="margin:3px 0;">هاتف إضافي: ${custPhone2}</p>` : ''}
-          ${order.orderType === 'dinein' || order.orderType === 'صالة' ? `<p style="margin:3px 0; font-size: 16px;">رقم الطاولة: ${order.tableNo || '1'}</p>` : ''}
-          ${order.orderType === 'delivery' || order.orderType === 'توصيل' ? `
-            <p style="margin:3px 0;">العنوان: ${order.address || '-'}</p>
-            ${landmark ? `<p style="margin:3px 0;">علامة مميزة: ${landmark}</p>` : ''}
-            <p style="margin:3px 0;">الدور: ${order.floor || 'غير محدد'} - الشقة: ${order.apt || 'غير محدد'}</p>
-            ${order.driverName ? `<p style="margin:3px 0; background:#eee; padding:2px;">الطيار: ${order.driverName}</p>` : ''}
-          ` : ''}
-          ${orderNotes ? `<p style="margin:3px 0; font-size: 13px; font-weight: bold; background:#eee; padding:3px; border:1px solid #000;">ملاحظات الطلب: ${orderNotes}</p>` : ''}
+          <p style="margin:3px 0;">الهاتف: ${custPhone} ${order.phone2 ? '/ ' + order.phone2 : ''}</p>
+          <p style="margin:3px 0;">العنوان: ${order.address || '-'}</p>
+          ${order.landmark ? `<p style="margin:3px 0;">علامة: ${order.landmark}</p>` : ''}
+          <p style="margin:3px 0;">دور: ${order.floor || '-'} | شقة: ${order.apt || '-'}</p>
         </div>
-
         <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
           <table style="width: 100%; text-align: right; font-size: 13px; border-collapse: collapse; font-weight: 800;">
-            <thead>
-              <tr style="border-bottom: 2px solid #000; font-size: 14px;">
-                <th style="text-align: right; padding-bottom: 4px;">الصنف</th>
-                <th style="text-align: center; padding-bottom: 4px;">العدد</th>
-                <th style="text-align: left; padding-bottom: 4px;">السعر</th>
-              </tr>
-            </thead>
+            <thead><tr style="border-bottom: 2px solid #000;"><th style="text-align: right;">الصنف</th><th style="text-align: center;">العدد</th><th style="text-align: left;">السعر</th></tr></thead>
             <tbody>
-              ${(order.items || []).map(i => {
-                const itemNote = i.notes || i.note || i.comment || i.options || '';
-                return `
+              ${(order.items || []).map(i => `
                 <tr style="border-bottom: 1px dashed #ccc;">
-                  <td style="padding: 4px 0; font-weight: 900; font-size: 14px;">
-                    ${i.name}
-                    ${itemNote ? `<div style="font-size:11px; font-weight:normal; color:#444;">ملاحظة: ${itemNote}</div>` : ''}
-                  </td>
-                  <td style="text-align: center; padding: 4px 0; font-size: 15px; font-weight: 900;">${i.qty || 1}</td>
-                  <td style="text-align: left; padding: 4px 0; font-weight: 900;">${(Number(i.price) * (i.qty || 1))}</td>
+                  <td style="padding: 4px 0;">${i.name}</td>
+                  <td style="text-align: center; padding: 4px 0;">${i.qty || 1}</td>
+                  <td style="text-align: left; padding: 4px 0;">${(Number(i.price) * (i.qty || 1))}</td>
                 </tr>
-              `;
-              }).join('')}
+              `).join('')}
             </tbody>
           </table>
         </div>
-
         <div style="border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 900;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-            <span>المجموع:</span><span>${order.subtotal || 0} ج.م</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-            <span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; border-top: 2px solid #000; padding-top: 6px; margin-top: 6px;">
+          <div style="display: flex; justify-content: space-between;"><span>المجموع:</span><span>${order.subtotal || 0} ج.م</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 17px; border-top: 2px solid #000; padding-top: 4px; margin-top: 4px;">
             <span>الإجمالي:</span><span>${order.total || 0} ج.م</span>
           </div>
-        </div>
-
-        <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;">
-          <p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p>
         </div>
       `;
 
