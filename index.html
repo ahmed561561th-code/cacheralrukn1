@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الكاشير وتقفيل اليومية - مطعم الركن الشامي</title>
+
+  <!-- Google Fonts & Tailwind CSS & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/lib/index.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    body, input, select, button, h1, h2, h3, h4, p, span, div, textarea {
+      font-family: 'Tajawal', sans-serif;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1c1917;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #44403c;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f59e0b;
+    }
+
+    @media print {
+      @page {
+        size: 80mm auto;
+        margin: 0;
+      }
+      body > *:not(#print-area) {
+        display: none !important;
+      }
+      #print-area {
+        display: block !important;
+        visibility: visible !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 76mm;
+        margin: 0 auto;
+        padding: 4px;
+        font-family: 'Tajawal', sans-serif;
+        color: #000 !important;
+        background: #fff !important;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      #print-area * {
+        visibility: visible !important;
+      }
+      .driver-page-break {
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+<body class="bg-stone-900 text-stone-100 min-h-screen pb-12 selection:bg-amber-500 selection:text-black">
+
+  <!-- ملفات الصوت للتنبيهات -->
+  <audio id="order-alert-sound" loop preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+  <audio id="delivered-alert-sound" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+
+  <!-- الهيدر الرئيسي -->
+  <header class="bg-stone-950 border-b border-stone-800 p-4 sticky top-0 z-30 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <img alt="لوجو المطعم" class="w-12 h-12 rounded-full border-2 border-amber-500 bg-white object-cover shadow-md" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgYDIEqcDEQOb7vPbahxCYf7xbY8dt4Mg8RM3JZM7gWnEnghUm7HR6JPOy2wJSkl_pxcAsnPCbuqtDiPCxg-Kx9N0J5n3yckarG-1BtFKjT4O65lGwZ3a2wjQIUssdT9XpCrc0DNpYF3hpp2snQDdfFOUBK3olE7M7QNNAy8DHcXMKj3t8D6veY9Mj576oA/s320/WhatsApp%20Image%202025-06-11%20at%204.34.21%20PM.jpeg">
+        <div>
+          <h1 class="text-xl font-black text-amber-500 flex items-center gap-2">
+            لوحة الكاشير واليومية <span class="text-[11px] font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-700/50 flex items-center gap-1">مباشر <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span></span>
+          </h1>
+          <p class="text-xs text-stone-400 font-medium">مطعم الركن الشامي - إدارة الطلبات والتوصيل واليومية</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button class="bg-amber-600/20 text-amber-400 hover:bg-amber-600 hover:text-white text-xs px-3 py-2 rounded-xl border border-amber-500/40 font-bold flex items-center gap-1.5 transition cursor-pointer" id="enable-audio-btn" onclick="enableAudio()">
+          <i class="fa-solid fa-volume-high"></i> تفعيل الصوت العالي 🔔
+        </button>
+
+        <button class="bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs px-3.5 py-2 rounded-xl font-black flex items-center gap-1.5 transition shadow-lg border border-amber-400 cursor-pointer" onclick="openPhoneCallOrderModal()">
+          <i class="fa-solid fa-phone-volume"></i> طلب هاتف / اتصال 📞
+        </button>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-xl border border-blue-500 font-bold flex items-center gap-1.5 transition shadow-lg cursor-pointer" onclick="openDriverReportModal()">
+          <i class="fa-solid fa-motorcycle"></i> تقارير الطيارين 🛵
+        </button>
+
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-2 rounded-xl border border-amber-500 font-bold flex items-center gap-1.5 transition shadow-lg cursor-pointer" onclick="openShiftReportModal()">
+          <i class="fa-solid fa-file-invoice-dollar"></i> تقفيل وترحيل اليومية 📊
+        </button>
+
+        <div class="bg-stone-900 border border-stone-800 p-1 rounded-xl flex items-center gap-2 px-2.5">
+          <span class="text-xs font-bold text-stone-400">حالة المطعم:</span>
+          <button class="px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-emerald-600 text-white cursor-pointer" id="store-toggle-btn" onclick="toggleStoreStatus()">
+            <i class="fa-solid fa-store"></i> مفتوح
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 space-y-5">
+
+    <!-- كروت الإحصائيات الشاملة -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">إجمالي الطلبات</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-black text-amber-400" id="stat-total-orders">0</span>
+          <i class="fa-solid fa-receipt text-stone-700 text-lg"></i>
+        </div>
+      </div>
+
+      <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">طلبات معلقة</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-black text-amber-500" id="stat-pending-orders">0</span>
+          <i class="fa-solid fa-clock text-amber-500/40 text-lg"></i>
+        </div>
+      </div>
+
+      <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">صافي المبيعات</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-black text-emerald-400" id="stat-net-sales">0 ج.م</span>
+          <i class="fa-solid fa-cash-register text-emerald-500/40 text-lg"></i>
+        </div>
+      </div>
+
+      <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between">
+        <span class="text-[11px] font-bold text-stone-400 block mb-1">إجمالي التوصيل</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-black text-blue-400" id="stat-total-delivery">0 ج.م</span>
+          <i class="fa-solid fa-motorcycle text-blue-500/40 text-lg"></i>
+        </div>
+      </div>
+
+      <div class="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex flex-col justify-between col-span-2 sm:col-span-1 lg:col-span-2 bg-gradient-to-r from-amber-950/30 to-stone-950">
+        <span class="text-[11px] font-bold text-amber-400 block mb-1">الإجمالي الكلي (المحصل)</span>
+        <div class="flex items-center justify-between">
+          <span class="text-2xl font-black text-amber-400" id="stat-total-revenue">0 ج.م</span>
+          <i class="fa-solid fa-wallet text-amber-500 text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- التحكم بالوردية والتاريخ -->
+    <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <i class="fa-solid fa-calendar-day text-amber-500 text-lg"></i>
+        <div>
+          <span class="text-xs text-stone-400 block font-bold">تاريخ وردية اليومية:</span>
+          <input class="bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500" id="shift-date-picker" onchange="filterOrders()" type="date">
+        </div>
+        <button class="text-xs bg-stone-800 hover:bg-stone-700 px-3 py-2 rounded-xl text-stone-300 font-bold transition cursor-pointer" onclick="setTodayDate()">اليوم</button>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
+        <span class="text-xs text-stone-400 font-bold shrink-0">النوع:</span>
+        <button class="type-btn bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer" id="type-all" onclick="setTypeFilter('all')">الكل</button>
+        <button class="type-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer" id="type-delivery" onclick="setTypeFilter('delivery')">توصيل 🛵</button>
+        <button class="type-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer" id="type-dinein" onclick="setTypeFilter('dinein')">صالة 🍽️</button>
+        <button class="type-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer" id="type-takeaway" onclick="setTypeFilter('takeaway')">سفري 🛍️</button>
+      </div>
+    </div>
+
+    <!-- شريط البحث وفلاتر الحالات -->
+    <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col md:flex-row gap-3 justify-between items-center">
+      <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+        <button class="filter-btn bg-amber-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-all" onclick="setStatusFilter('all')">الكل</button>
+        <button class="filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-جديد" onclick="setStatusFilter('جديد')">جديد 🔔</button>
+        <button class="filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-قيد التحضير" onclick="setStatusFilter('قيد التحضير')">قيد التحضير 👨‍🍳</button>
+        <button class="filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-في الطريق" onclick="setStatusFilter('في الطريق')">في الطريق 🛵</button>
+        <button class="filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-تم التسليم" onclick="setStatusFilter('تم التسليم')">تم التسليم ✅</button>
+        <button class="filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer" id="filter-ملغي" onclick="setStatusFilter('ملغي')">ملغي ❌</button>
+      </div>
+
+      <div class="relative w-full md:w-80">
+        <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-stone-500 text-xs"></i>
+        <input class="w-full bg-stone-900 border border-stone-700 rounded-xl pr-9 pl-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500" id="search-input" onkeyup="filterOrders()" placeholder="بحث باسم العميل، الهاتف، أو رقم الطلب..." type="text">
+      </div>
+    </div>
+
+    <!-- شبكة الطلبات -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="orders-grid"></div>
+  </main>
+
+  <!-- Modal إضافة طلب اتصال هاتف بستايل المنيو الرئيسي -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5" id="phone-call-modal">
+    <div class="bg-stone-950 border border-amber-500/40 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- الهيدر -->
+      <div class="flex justify-between items-center bg-stone-900 p-4 border-b border-stone-800">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-black border border-amber-500/30">
+            📞
+          </div>
+          <div>
+            <h3 class="text-base font-black text-amber-400">تسجيل طلب عبر اتصال هاتفي</h3>
+            <p class="text-[11px] text-stone-400">اختر الأصناف من المنيو وادخل بيانات العميل بسرعة</p>
+          </div>
+        </div>
+        <button class="text-stone-400 hover:text-white text-xl p-2 cursor-pointer" onclick="closePhoneCallOrderModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        
+        <!-- قسم المنيو والأصناف -->
+        <div class="lg:col-span-7 p-4 border-b lg:border-b-0 lg:border-l border-stone-800 flex flex-col h-full overflow-hidden">
+          <div class="flex gap-2 overflow-x-auto pb-3 mb-3 border-b border-stone-800/80 shrink-0">
+            <button class="call-cat-btn bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('all')">الكل</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('عروض الركن الشامي')">🌯 عروض الركن الشامي</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الشاورما')">🍽️ الشاورما</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الغربي')">🥪 الغربي</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('البطاطس')">🥪 البطاطس</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الوجبات')">🥪 الوجبات</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الفتات')">🥪 الفتات</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الماريا')">🥪 الماريا</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('الريزو')">🥪 الريزو</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('مقبلات ساخنة ')">🥪 مقبلات ساخنة</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('مقبلات باردا')">🥪 مقبلات باردا</button>
+            <button class="call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterCallMenuCategory('العائلي')">🥤 العائلي</button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1 flex-1" id="call-menu-grid"></div>
+        </div>
+
+        <!-- قسم السلة وبيانات العميل -->
+        <div class="lg:col-span-5 p-4 bg-stone-900/40 flex flex-col h-full overflow-y-auto space-y-3">
+          
+          <h4 class="font-black text-xs text-amber-400 border-b border-stone-800 pb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-user-pen"></i> بيانات العميل والتوصيل
+          </h4>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <label class="block font-bold text-stone-400 mb-1">نوع الطلب</label>
+              <select class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white font-bold" id="co-type" onchange="toggleCallOrderFields()">
+                <option value="توصيل">توصيل (Delivery)</option>
+                <option value="dinein">صالة (Dine-in)</option>
+                <option value="takeaway">سفري (Takeaway)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-stone-400 mb-1">اسم العميل *</label>
+              <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-cust-name" placeholder="اسم العميل" type="text">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <label class="block font-bold text-stone-400 mb-1">الهاتف الرئيسي *</label>
+              <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-cust-phone" placeholder="01xxxxxxxxx" type="text">
+            </div>
+            <div>
+              <label class="block font-bold text-amber-400 mb-1">هاتف ثاني (اختياري)</label>
+              <input class="w-full bg-stone-900 border border-amber-500/30 rounded-xl p-2 text-white" id="co-cust-phone2" placeholder="01xxxxxxxxx" type="text">
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs" id="co-delivery-fields">
+            <div>
+              <label class="block font-bold text-stone-400 mb-1">العنوان التفصيلي</label>
+              <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-address" placeholder="المنطقة - الشارع - رقم العمارة" type="text">
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block font-bold text-amber-400 mb-1">علامة مميزة</label>
+                <input class="w-full bg-stone-900 border border-amber-500/30 rounded-xl p-2 text-white" id="co-landmark" placeholder="بجوار..." type="text">
+              </div>
+              <div>
+                <label class="block font-bold text-stone-400 mb-1">الدور</label>
+                <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-floor" placeholder="4" type="text">
+              </div>
+              <div>
+                <label class="block font-bold text-stone-400 mb-1">الشقة</label>
+                <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-apt" placeholder="12" type="text">
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden text-xs" id="co-dinein-fields">
+            <label class="block font-bold text-stone-400 mb-1">رقم الطاولة</label>
+            <input class="w-full bg-stone-900 border border-stone-700 rounded-xl p-2 text-white" id="co-table-no" placeholder="مثال: 5" type="text">
+          </div>
+
+          <div>
+            <label class="block font-bold text-amber-400 mb-1 text-xs">ملاحظات عامة على الطلب (اختياري)</label>
+            <input class="w-full bg-stone-900 border border-amber-500/30 rounded-xl p-2 text-white text-xs" id="co-order-notes" placeholder="ملاحظات العميل العامة..." type="text">
+          </div>
+
+          <!-- قائمة الأصناف المحددة للسلة -->
+          <div class="flex-1 border-t border-stone-800 pt-3 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-black text-xs text-amber-400">سلة الطلب المحددة:</span>
+                <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold" id="call-cart-count">0 صنف</span>
+              </div>
+              <div class="space-y-2 max-h-48 overflow-y-auto pr-1 text-xs" id="call-cart-items">
+                <p class="text-stone-500 text-center py-4 text-[11px]">اضغط على الأصناف من المنيو لإضافتها هنا</p>
+              </div>
+            </div>
+
+            <div class="border-t border-stone-800 pt-3 mt-3 space-y-2 text-xs">
+              <div class="flex justify-between items-center text-stone-300" id="co-del-fee-box">
+                <span>رسوم التوصيل:</span>
+                <input class="w-20 bg-stone-900 border border-stone-700 rounded-lg p-1 text-center font-bold text-amber-400" id="co-delivery-fee" onchange="renderCallCart()" type="number" value="15">
+              </div>
+              <div class="flex justify-between items-center text-sm font-black text-amber-400 border-t border-stone-800 pt-2">
+                <span>الإجمالي الكلي:</span>
+                <span id="call-cart-total">0 ج.م</span>
+              </div>
+              <button class="w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-black py-2.5 rounded-xl transition shadow-lg mt-2 flex justify-center items-center gap-2 cursor-pointer" onclick="saveCallOrder()">
+                <i class="fa-solid fa-paper-plane"></i> إرسال واعتماد الطلب
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تقرير الديلفري (الطيارين) -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5" id="driver-report-modal">
+    <div class="bg-stone-950 border border-stone-800 w-full max-w-3xl max-h-[92vh] rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-stone-800 flex justify-between items-center bg-stone-900">
+        <h3 class="text-base font-black text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-motorcycle text-amber-500"></i> تقارير طيارين الديلفري وحالة الاتصال
+        </h3>
+        <button class="text-stone-400 hover:text-white text-xl p-1 cursor-pointer" onclick="closeDriverReportModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-4 bg-stone-900/50 border-b border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <label class="text-xs text-stone-400 font-bold shrink-0">اختر الطيار:</label>
+          <select class="w-full sm:w-64 bg-stone-900 border border-stone-700 rounded-xl p-2 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500" id="driver-select" onchange="renderDriverReportDetails()">
+            <option value="all">كل الطيارين</option>
+          </select>
+        </div>
+        <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition shadow flex items-center justify-center gap-2 cursor-pointer" onclick="printDriversReport()">
+          <i class="fa-solid fa-print"></i> طباعة تقرير الطيارين (80mm)
+        </button>
+      </div>
+
+      <div class="p-4 flex-1 overflow-y-auto space-y-4 text-xs" id="driver-report-content"></div>
+    </div>
+  </div>
+
+  <!-- مودال تقرير تقفيل الشيفت اليومي -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5" id="shift-report-modal">
+    <div class="bg-stone-950 border border-stone-800 w-full max-w-3xl max-h-[92vh] rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-stone-800 flex justify-between items-center bg-stone-900">
+        <h3 class="text-base font-black text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-file-invoice-dollar text-amber-500"></i> تقرير تقفيل وترحيل الشيفت اليومي
+        </h3>
+        <button class="text-stone-400 hover:text-white text-xl p-1 cursor-pointer" onclick="closeShiftReportModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-4 flex-1 overflow-y-auto space-y-4 text-xs" id="shift-report-content"></div>
+
+      <div class="p-4 bg-stone-900 border-t border-stone-800 flex flex-wrap justify-between items-center gap-3">
+        <span class="text-xs text-stone-400 font-bold" id="shift-report-date-label"></span>
+        <div class="flex items-center gap-2">
+          <button class="bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs px-4 py-2.5 rounded-xl font-black transition shadow flex items-center gap-2 cursor-pointer" onclick="printDailyShiftReport()">
+            <i class="fa-solid fa-print"></i> طباعة التقرير (80mm)
+          </button>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition shadow flex items-center gap-2 cursor-pointer" onclick="closeAndTransferShift()">
+            <i class="fa-solid fa-calendar-plus"></i> إغلاق الوردية والنقل لليوم الجديد 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- منطقة الطباعة (مخفية إلا وقت الطباعة) -->
+  <div class="hidden bg-white text-black font-sans text-xs p-2 dir-rtl" id="print-area"></div>
+
+  <script>
+    // قائمة المنيو الرئيسي لطلب الاتصال الهاتفي
+    const mainRestaurantMenu = [
+      { id: 1, name: "عرض الطلبة", price: 35, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 2, name: "عرض 3 شاورما وسط ", price: 135, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 3, name: "عرض 3 شاورما لارج", price: 165, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 4, name: "عرض 3 شاورما اكس لارج", price: 195, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 5, name: "عرض 2 فتة شاورما وسط", price: 160, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 6, name: "عرض 2 فتة شاورما كبير", price: 180, category: "عروض الركن الشامي", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+
+      { id: 7, name: "سندوتش شاورما وسط", price: 55, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 8, name: "سندوتش شاورما كبير", price: 65, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 9, name: "سندوتش شاورما جامبو", price: 75, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 10, name: "سندوتش شاورما مع بطاطس", price: 70, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 11, name: "سندوتش شاورما مع موتزريلا", price: 70, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 12, name: "سندوتش شاورما فرنساوي", price: 70, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 13, name: "سندوتش شاورما كايزر", price: 55, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 14, name: "وجبة شاورما عربي", price: 85, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 15, name: "وجبة شاورما عربي دبل", price: 130, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 16, name: "وجبة شاورما فرط", price: 150, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 17, name: "نص كيلو شاورم", price: 300, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+      { id: 18, name: "كيلو شاورما", price: 600, category: "الشاورما", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
+
+      { id: 19, name: "سندوتش كرسبي سوري", price: 75, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 20, name: "سندوتش كرسبي فرنساوي", price: 80, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 21, name: "سندوتش زنجر سوري", price: 75, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 22, name: "سندوتش زنجر فرنساوي", price: 80, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 23, name: "سندوتش سكالوب سوري", price: 75, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 24, name: "سندوتش سكالوب فرنساوي", price: 80, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 25, name: "سندوتش فاهيتا سوري", price: 70, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 26, name: "سندوتش فاهيتا فرنساوي", price: 75, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 27, name: "سندوتش مكسيكي سوري", price: 70, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 28, name: "سندوتش مكسيكي فرنساوي", price: 75, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 29, name: "سندوتش كبدة فراخ سوري", price: 50, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 30, name: "سندوتش كبدة فراخ فرنساوي", price: 55, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 31, name: "برجر تشيكن سوري", price: 45, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 32, name: "برجر تشيكن كايزر", price: 50, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 33, name: "برجر تشيكن سوري موتزريلا", price: 50, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+      { id: 34, name: "برجر تشيكن كايزر موتزريلا", price: 55, category: "الغربي", img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&auto=format&fit=crop" },
+
+      { id: 35, name: "سندوتش بطاطس سوري", price: 20, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 36, name: "سندوتش بطاطس جامبو", price: 25, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 37, name: "سندوتش بطاطس فرنساوي", price: 30, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 38, name: "سندوتش بطاطس موتزريلا سوري", price: 25, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 39, name: "سندوتش بطاطس موتزريلا جامبو", price: 30, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 40, name: "سندوتش بطاطس موتزريلا فرنساوي", price: 35, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 41, name: "سندوتش بطاطس سوري شيدر", price: 25, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 42, name: "سندوتش بطاطس جامبو شيدر", price: 30, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+      { id: 43, name: "سندوتش بطاطس شيدر فرنساوي", price: 35, category: "البطاطس", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0HJdiIU12LzwaluptzlgTgLJ_Xdzvu5ZyYx6nnSvJThiYYPPXLOGaTLSLEuQ56JUuBxhm4J04qrPllCdOdNWlNNQHqMB84uXu4B3BOC9Ck9GH-pLKhqUDu_SQ4tAX0ESZV1w9wlyoAaYeT4L2fwD8GQCOnUQjwRsbBkKVkGCSlca4j5pvY-4C9pY4AINw/s1600/376796-%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%B3%D9%86%D8%AF%D9%88%D8%AA%D8%B4%D8%A7%D8%AA-%D8%A7%D9%84%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3.webp" },
+
+      { id: 44, name: "وجبة كريسبي 3 قطع  ", price: 115, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 45, name: "وجبة كريسبي 4 قطع  ", price: 145, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 46, name: "وجبة زنجر 3 قطع  ", price: 115, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 47, name: "وجبة زنجر 4 قطع ", price: 145, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 48, name: "وجبة سكالوب 3 قطع  ", price: 115, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 49, name: "وجبة سكالوب 4 قطع ", price: 145, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 50, name: "وجبة فاهيتا ", price: 125, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+      { id: 51, name: "وجبة مكسيكي ", price: 125, category: "الوجبات", img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=200&q=80" },
+
+      { id: 52, name: "فتة شاورما وسط", price: 95, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 53, name: "فتة شاورما كبير  ", price: 105, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 54, name: "فتة شاورما موتزريلا", price: 115, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 56, name: "فتة كريسبي وسط", price: 95, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 57, name: "فتة كريسبي كبير ", price: 105, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 58, name: "فتة كريسبي موتزريلا ", price: 115, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 59, name: "فتة زنجر وسط ", price: 95, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 60, name: "فتة زنجر كبير ", price: 105, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 61, name: "فتة زنجر موتزريلا ", price: 115, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 62, name: "فتة فاهيتا وسط ", price: 95, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 63, name: "فتة فاهيتا كبير ", price: 105, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 64, name: "فتة مكسيكي وسط ", price: 95, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+      { id: 65, name: "فتة مكسيكي كبير", price: 105, category: "الفتات", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEih-NC0nfpqJL9kT0OOWuKAjeU9nf0vQV2Wr-XAA3Donq0mzYCI6Nudw_rfBTQtfZgdahH7DjpTPOl3nwhKPKcBn9PFIJL-IOtsdViAKgdMjtIYZVv_eEqikGTYdYBNIkc8yurr2RtnUfO53ZYQVJA4uex-HiwebiD8VpvHgdXSPM4S0DsAPjFoOgI8DNY/s1600/%D9%81%D8%AA%D8%A9.webp" },
+
+      { id: 66, name: "ماريا شاورما ", price: 95, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 67, name: "ماريا شاورما موتزريلا ", price: 105, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 68, name: "ماريا كريسبي ", price: 95, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 69, name: "ماريا كريسبي موتزريلا ", price: 105, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 70, name: "ماريا زنجر ", price: 95, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 71, name: "ماريا زنجر موتزريلا ", price: 105, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 72, name: "ماريا فاهيتا ", price: 95, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 73, name: "ماريا فاهيتا موتزريلا ", price: 105, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 74, name: "ماريا مكسيكي ", price: 95, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+      { id: 75, name: "ماريا مكسيكي موتزريلا ", price: 105, category: "الماريا", img: "https://hero-food.com/public/uploads/all/C0LqK1S3jVaYHCMlWMDdoyKlbEi02QOb590fAoJH.jpg" },
+
+      { id: 76, name: "ريزو باربكيو ", price: 85, category: "الريزو", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhUfsTXlhuIz30z2xaEva4znzUUnpjTaLL5BeROyyL6BBA9Dm2alvC_DDfPq2jhrLNnU3JevLEDLfOHYfnM-aAvvmtdO19FJ9mup51lfUOeJELwohFD7-MZwtYiLZkGG27X_DCWHU3yJ0HRDlGoD3EBcTSL-2J3OrfuLG8xNGdoF2Rt__8s1P_z6_WYAhc/s1600/%D8%B1%D9%8A%D8%B2%D9%88.jpg" },
+      { id: 77, name: "ريزو شيدر", price: 85, category: "الريزو", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhUfsTXlhuIz30z2xaEva4znzUUnpjTaLL5BeROyyL6BBA9Dm2alvC_DDfPq2jhrLNnU3JevLEDLfOHYfnM-aAvvmtdO19FJ9mup51lfO-aAvvmtdO19FJ9mup51lfUOeJELwohFD7-MZwtYiLZkGG27X_DCWHU3yJ0HRDlGoD3EBcTSL-2J3OrfuLG8xNGdoF2Rt__8s1P_z6_WYAhc/s1600/%D8%B1%D9%8A%D8%B2%D9%88.jpg" },
+      { id: 78, name: "ريزو كوكتيل ", price: 85, category: "الريزو", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhUfsTXlhuIz30z2xaEva4znzUUnpjTaLL5BeROyyL6BBA9Dm2alvC_DDfPq2jhrLNnU3JevLEDLfOHYfnM-aAvvmtdO19FJ9mup51lfUOeJELwohFD7-MZwtYiLZkGG27X_DCWHU3yJ0HRDlGoD3EBcTSL-2J3OrfuLG8xNGdoF2Rt__8s1P_z6_WYAhc/s1600/%D8%B1%D9%8A%D8%B2%D9%88.jpg" },
+
+      { id: 79, name: "ارز بسمتي", price: 35, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
+      { id: 80, name: "باكيت بطاطس ", price: 25, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
+      { id: 81, name: "باكيت بطاطس سبايسي ", price: 25, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
+      { id: 82, name: "باكيت بطاطس موتزريلا ", price: 30, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
+      { id: 83, name: "باكيت بطاطس شيدر ", price: 30, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
+
+      { id: 84, name: "تومية عادي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 85, name: "تومية سبايسي ", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 86, name: "تومية صيامي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 87, name: "صوص بربكيو", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 88, name: "صوص شيدر", price: 25, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 89, name: "كلو سلو ", price: 20, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 90, name: "مخلل ", price: 5, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+
+      { id: 91, name: "كيلو كرسبي", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8A.jpg" },
+      { id: 92, name: "كيلو زنجر", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8A.jpg" },
+      { id: 93, name: "كيلو سكالوب ", price: 600, category: "العائلي", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEig5pLaETgmdqyVQ_t0YkmLawwtgPRSkONfO6NFyDMHaQkp1GmGcCGN4Ov3xAkV6JN9UcjQJyFAufJHdd8Xk3QwxxLUZS_6b_skYJCHAqlIqGuVdlOn3pm0khjLjmF834mMP6OhZiKgmxcs8bU_V9tT_xH4KshaFolgT1Plqgr5BeUJ67kygSSbilC0Pts/s1600/%D9%83%D8%B1%D8%B3%D8%A8%D9%8A.jpg" }
+    ];
+
+    const defaultDriversList = ["مؤمن طارق", "مازن طارق", "حمو النيما", "احمد حامد", "علي السيد"];
+    let callCart = [];
+
+    // إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7b09veLZicac60Uuw0Sgb-cL3FtC4",
+      authDomain: "alrokn-alshami.firebaseapp.com",
+      projectId: "alrokn-alshami",
+      storageBucket: "alrokn-alshami.appspot.com",
+      messagingSenderId: "637299277948",
+      appId: "1:637299277948:web:b2d029a2e72b41b4b889f9",
+      measurementId: "G-38M27LBT11"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const ONESIGNAL_APP_ID = "c4e3f190-e5b2-4f2b-9f6d-0b383ebccab8";
+    const ONESIGNAL_REST_API_KEY = "";
+
+    let rawOrdersData = {};
+    let previousOrdersData = {};
+    let driversStatusData = {};
+    let filteredOrdersList = [];
+    let currentStatusFilter = 'all';
+    let currentTypeFilter = 'all';
+    let isStoreOpen = true;
+    let audioAllowed = true; // مفعل افتراضياً
+    let isInitialLoad = true;
+
+    window.onload = function() {
+      setTodayDate();
+      initStoreStatus();
+      initOrdersListener();
+      initDriversStatusListener();
+      
+      // تفعيل وتشغيل الصوت بشكل تلقائي مع أول تفاعل أو فوراً
+      autoEnableAndPlayAudio();
+    };
+
+    function autoEnableAndPlayAudio() {
+      const audio = document.getElementById('order-alert-sound');
+      const deliveredAudio = document.getElementById('delivered-alert-sound');
+      if (audio && deliveredAudio) {
+        audio.volume = 1.0;
+        deliveredAudio.volume = 1.0;
+        audioAllowed = true;
+        const btn = document.getElementById('enable-audio-btn');
+        if (btn) {
+          btn.className = "bg-emerald-900/40 text-emerald-300 border border-emerald-600/50 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer";
+          btn.innerHTML = `<i class="fa-solid fa-volume-check"></i> الصوت مفعل وبأعلى درجة 🔔`;
+        }
+      }
+      
+      // تفعيل صوتي عند أي نقرة أولى في الصفحة لضمان عمل المتصفح
+      const unlockAudio = () => {
+        const audio = document.getElementById('order-alert-sound');
+        if (audio) {
+          audio.play().then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+          }).catch(e => {});
+        }
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('keydown', unlockAudio);
+      };
+      document.addEventListener('click', unlockAudio);
+      document.addEventListener('keydown', unlockAudio);
+    }
+
+    function setTodayDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('shift-date-picker').value = today;
+      filterOrders();
+    }
+
+    function enableAudio() {
+      const audio = document.getElementById('order-alert-sound');
+      const deliveredAudio = document.getElementById('delivered-alert-sound');
+      
+      audio.volume = 1.0;
+      deliveredAudio.volume = 1.0;
+
+      Promise.all([audio.play(), deliveredAudio.play()]).then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        deliveredAudio.pause();
+        deliveredAudio.currentTime = 0;
+        audioAllowed = true;
+        const btn = document.getElementById('enable-audio-btn');
+        btn.className = "bg-emerald-900/40 text-emerald-300 border border-emerald-600/50 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer";
+        btn.innerHTML = `<i class="fa-solid fa-volume-check"></i> الصوت مفعل وبأعلى درجة 🔔`;
+      }).catch(err => console.log('Audio error:', err));
+    }
+
+    function initStoreStatus() {
+      db.ref('storeStatus').on('value', (snapshot) => {
+        const val = snapshot.val();
+        isStoreOpen = !(val === false || val === 'closed' || val === 'مغلق' || (val && val.isOpen === false));
+        const btn = document.getElementById('store-toggle-btn');
+        if (isStoreOpen) {
+          btn.className = "px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer";
+          btn.innerHTML = `<i class="fa-solid fa-store"></i> مفتوح`;
+        } else {
+          btn.className = "px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white cursor-pointer";
+          btn.innerHTML = `<i class="fa-solid fa-store-slash"></i> مغلق`;
+        }
+      });
+    }
+
+    function toggleStoreStatus() {
+      db.ref('storeStatus').set(!isStoreOpen);
+    }
+
+    function initDriversStatusListener() {
+      db.ref('driversStatus').on('value', (snapshot) => {
+        driversStatusData = snapshot.val() || {};
+        filterOrders();
+        if (!document.getElementById('driver-report-modal').classList.contains('hidden')) {
+          renderDriverReportDetails();
+        }
+      });
+    }
+
+    function isDriverOnline(driverName) {
+      if (!driverName) return false;
+      const name = driverName.trim();
+      const info = driversStatusData[name] || driversStatusData[name.replace(/\s+/g, '_')];
+      if (!info) return false;
+      
+      const isOnlineFlag = info.isOnline === true || info.status === 'online';
+      const lastSeen = info.lastSeen || 0;
+      const now = Date.now();
+      
+      return isOnlineFlag && (now - lastSeen < 180000);
+    }
+
+    function handleAlertAudio(orders) {
+      const alertAudio = document.getElementById('order-alert-sound');
+      const deliveredAudio = document.getElementById('delivered-alert-sound');
+      if (!alertAudio) return;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      const hasNewOrderToday = Object.values(orders).some(o => {
+        const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '') || (o.dateTime ? o.dateTime.split(' ')[0] : '');
+        const isNew = (o.status === 'جديد' || !o.status);
+        return isNew && (orderDate === today || !orderDate);
+      });
+
+      if (hasNewOrderToday && audioAllowed && !isInitialLoad) {
+        if (alertAudio.paused) alertAudio.play().catch(e => console.log(e));
+      } else {
+        alertAudio.pause();
+        alertAudio.currentTime = 0;
+      }
+
+      if (!isInitialLoad && audioAllowed) {
+        Object.entries(orders).forEach(([key, ord]) => {
+          const prevOrd = previousOrdersData[key];
+          const isNowDelivered = (ord.status === 'تم التسليم' || ord.status === 'مكتمل');
+          const wasNotDelivered = prevOrd && (prevOrd.status !== 'تم التسليم' && prevOrd.status !== 'مكتمل');
+
+          if (wasNotDelivered && isNowDelivered) {
+            if (deliveredAudio) {
+              deliveredAudio.currentTime = 0;
+              deliveredAudio.play().catch(e => console.log('Delivered audio error:', e));
+            }
+          }
+        });
+      }
+
+      previousOrdersData = JSON.parse(JSON.stringify(orders));
+    }
+
+    function initOrdersListener() {
+      db.ref('orders').on('value', (snapshot) => {
+        rawOrdersData = snapshot.val() || {};
+        handleAlertAudio(rawOrdersData);
+        if (isInitialLoad) isInitialLoad = false;
+        filterOrders();
+      });
+    }
+
+    function setStatusFilter(status) {
+      currentStatusFilter = status;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.className = "filter-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer";
+      });
+      const activeBtn = document.getElementById(`filter-${status}`);
+      if (activeBtn) activeBtn.className = "filter-btn bg-amber-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer";
+      filterOrders();
+    }
+
+    function setTypeFilter(type) {
+      currentTypeFilter = type;
+      document.querySelectorAll('.type-btn').forEach(b => {
+        b.className = "type-btn bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer";
+      });
+      const activeBtn = document.getElementById(`type-${type}`);
+      if (activeBtn) activeBtn.className = "type-btn bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 cursor-pointer";
+      filterOrders();
+    }
+
+    function filterOrders() {
+      const selectedDate = document.getElementById('shift-date-picker').value;
+      const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+
+      let entries = Object.entries(rawOrdersData);
+
+      if (selectedDate) {
+        entries = entries.filter(([key, order]) => {
+          const orderDate = order.date || (order.createdAt ? order.createdAt.split('T')[0] : '') || (order.dateTime ? order.dateTime.split(' ')[0] : '');
+          return orderDate ? orderDate.includes(selectedDate) : true;
+        });
+      }
+
+      if (currentStatusFilter !== 'all') {
+        entries = entries.filter(([key, order]) => {
+          const st = order.status || 'جديد';
+          if (currentStatusFilter === 'جديد') return st === 'جديد';
+          if (currentStatusFilter === 'قيد التحضير') return st === 'قيد التحضير' || st === 'تحت التحضير' || st === 'تم القبول';
+          if (currentStatusFilter === 'في الطريق') return st === 'في الطريق';
+          if (currentStatusFilter === 'تم التسليم') return st === 'تم التسليم' || st === 'مكتمل';
+          if (currentStatusFilter === 'ملغي') return st === 'ملغي' || st === 'مرفوض';
+          return true;
+        });
+      }
+
+      if (currentTypeFilter !== 'all') {
+        entries = entries.filter(([key, order]) => {
+          const tp = order.orderType || order.type || 'توصيل';
+          if (currentTypeFilter === 'delivery') return tp === 'توصيل' || tp === 'delivery';
+          if (currentTypeFilter === 'dinein') return tp === 'dinein' || tp === 'صالة';
+          if (currentTypeFilter === 'takeaway') return tp === 'takeaway' || tp === 'سفري' || tp === 'تك أواي';
+          return true;
+        });
+      }
+
+      if (searchQuery) {
+        entries = entries.filter(([key, order]) => {
+          const name = (order.customer ? order.customer.name : (order.name || '')).toLowerCase();
+          const phone = (order.customer ? order.customer.phone : (order.phone || '')).toLowerCase();
+          const phone2 = (order.customer ? order.customer.phone2 : (order.phone2 || '')).toLowerCase();
+          const id = (order.orderId || order.id || key).toLowerCase();
+          const addr = (order.address || '').toLowerCase();
+          const notes = (order.notes || order.note || order.customerNote || order.orderNotes || '').toLowerCase();
+          return name.includes(searchQuery) || phone.includes(searchQuery) || phone2.includes(searchQuery) || id.includes(searchQuery) || addr.includes(searchQuery) || notes.includes(searchQuery);
+        });
+      }
+
+      entries.reverse();
+      filteredOrdersList = entries;
+
+      updateStats(entries.map(e => e[1]));
+      renderOrdersGrid(entries);
+    }
+
+    function updateStats(ordersArray) {
+      const validOrders = ordersArray.filter(o => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
+      const pendingCount = ordersArray.filter(o => (o.status || 'جديد') === 'جديد' || o.status === 'قيد التحضير' || o.status === 'تحت التحضير' || o.status === 'في الطريق').length;
+      
+      const totalCount = ordersArray.length;
+      const totalRev = validOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+      const totalDel = validOrders.reduce((sum, o) => sum + Number(o.deliveryFee || 0), 0);
+      const netSales = totalRev - totalDel;
+
+      document.getElementById('stat-total-orders').innerText = totalCount;
+      document.getElementById('stat-pending-orders').innerText = pendingCount;
+      document.getElementById('stat-net-sales').innerText = netSales + ' ج.م';
+      document.getElementById('stat-total-delivery').innerText = totalDel + ' ج.م';
+      document.getElementById('stat-total-revenue').innerText = totalRev + ' ج.م';
+    }
+
+    function renderOrdersGrid(entries) {
+      const grid = document.getElementById('orders-grid');
+      if (entries.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-stone-950 border border-stone-800 rounded-2xl p-12 text-center">
+            <i class="fa-solid fa-receipt text-4xl text-stone-600 mb-3 block"></i>
+            <p class="text-stone-400 font-bold text-xs">لا توجد طلبات مسجلة ضمن هذا البحث أو اليومية</p>
+          </div>
+        `;
+        return;
+      }
+      grid.innerHTML = entries.map(([key, order]) => createOrderCardHTML(key, order)).join('');
+    }
+
+    function createOrderCardHTML(key, order) {
+      const status = order.status || 'جديد';
+      const custName = order.customer ? order.customer.name : (order.name || 'عميل مجهول');
+      const custPhone = order.customer ? order.customer.phone : (order.phone || '');
+      const custPhone2 = order.customer ? order.customer.phone2 : (order.phone2 || '');
+      const orderId = order.orderId || order.id || key.slice(-5);
+      const orderType = order.orderType || order.type || 'توصيل';
+      const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+      const isAcceptedByDriver = order.driverAccepted === true;
+      const currentDriver = order.driverName || '';
+      const landmark = order.landmark || order.addressLandmark || '';
+      const orderNotes = order.notes || order.note || order.customerNote || order.orderNotes || '';
+
+      let borderClass = "border-stone-800";
+      let statusBadge = "bg-stone-800 text-stone-300";
+
+      if (status === 'جديد') {
+        borderClass = "border-amber-500 shadow-xl shadow-amber-500/10 ring-2 ring-amber-500/20";
+        statusBadge = "bg-amber-500 text-stone-950 animate-bounce font-black";
+      } else if (status === 'قيد التحضير' || status === 'تحت التحضير' || status === 'تم القبول') {
+        borderClass = "border-blue-500/50";
+        statusBadge = "bg-blue-600 text-white font-bold";
+      } else if (status === 'في الطريق') {
+        borderClass = "border-purple-500/50";
+        statusBadge = isAcceptedByDriver ? "bg-purple-600 text-white font-bold" : "bg-purple-900/60 text-purple-300 border border-purple-500/40 font-bold animate-pulse";
+      } else if (status === 'تم التسليم' || status === 'مكتمل') {
+        borderClass = "border-emerald-500/30";
+        statusBadge = "bg-emerald-900/60 text-emerald-400 border border-emerald-700/50 font-bold";
+      } else if (status === 'ملغي' || status === 'مرفوض') {
+        borderClass = "border-red-900/40 opacity-60";
+        statusBadge = "bg-red-950 text-red-400 border border-red-800 font-bold";
+      }
+
+      const itemsList = (order.items || []).map((i, idx) => {
+        const itemNote = i.notes || i.note || i.comment || i.options || '';
+        return `
+        <div class="flex flex-col py-1 border-b border-stone-800/60 last:border-0 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-stone-200 font-bold"><span class="text-amber-500 font-black">${i.qty || 1}x</span> ${i.name}</span>
+            <div class="flex items-center gap-1">
+              <span class="text-stone-400 font-medium">${(Number(i.price) * (i.qty || 1))} ج.م</span>
+              <button onclick="editItemQty('${key}', ${idx})" class="text-amber-500 hover:text-amber-400 text-[10px] bg-stone-800 px-1.5 py-0.5 rounded border border-stone-700 ml-1 cursor-pointer">تعديل</button>
+            </div>
+          </div>
+          ${itemNote ? `<span class="text-[10px] text-amber-300/90 bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-500/20 mt-0.5 w-fit">ملاحظة: ${itemNote}</span>` : ''}
+        </div>
+      `;
+      }).join('');
+
+      const driverOptionsHTML = defaultDriversList.map(drv => {
+        const online = isDriverOnline(drv);
+        const icon = online ? "🟢 (متصل)" : "🔴 (غير متصل)";
+        const selected = currentDriver === drv ? 'selected' : '';
+        return `<option value="${drv}" ${selected}>${drv} ${icon}</option>`;
+      }).join('');
+
+      return `
+        <div class="bg-stone-950 rounded-2xl p-4 border ${borderClass} flex flex-col justify-between space-y-4 shadow-lg transition-all duration-200 hover:border-amber-500/50">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start border-b border-stone-800 pb-2.5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-black text-amber-400 text-base">#${orderId}</span>
+                  <span class="text-[10px] bg-stone-800 text-amber-300 px-2 py-0.5 rounded-md border border-stone-700 font-bold">
+                    ${orderType === 'dinein' ? '🍽️ صالة' : (orderType === 'takeaway' ? '🛍️ سفري' : '🛵 توصيل')}
+                  </span>
+                </div>
+                <span class="text-[10px] text-stone-400 block mt-0.5">${timeStr}</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl text-xs ${statusBadge}">
+                ${status === 'جديد' ? 'طلب جديد 🔔' : (status === 'في الطريق' && !isAcceptedByDriver ? 'في الانتظار 🛵' : status)}
+              </span>
+            </div>
+
+            <div class="space-y-1.5 text-xs text-stone-300 bg-stone-900/80 p-2.5 rounded-xl border border-stone-800">
+              <div class="flex justify-between items-center">
+                <p class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-user text-amber-500 text-[10px]"></i> ${custName}</p>
+                ${custPhone ? `
+                  <a href="https://wa.me/${custPhone.replace(/\D/g, '')}" target="_blank" class="text-emerald-400 hover:text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800 text-[10px] font-bold flex items-center gap-1">
+                    <i class="fa-brands fa-whatsapp"></i> واتساب
+                  </a>
+                ` : ''}
+              </div>
+              <p class="flex items-center gap-1.5"><i class="fa-solid fa-phone text-amber-500 text-[10px]"></i> <a href="tel:${custPhone}" class="hover:underline text-amber-400 dir-ltr inline-block font-mono">${custPhone || 'بدون رقم'}</a></p>
+              ${custPhone2 ? `<p class="flex items-center gap-1.5 text-[11px] text-stone-400"><i class="fa-solid fa-phone-flip text-amber-500/70 text-[9px]"></i> إضافي: <a href="tel:${custPhone2}" class="hover:underline text-stone-300 dir-ltr font-mono">${custPhone2}</a></p>` : ''}
+              ${orderType === 'dinein' || orderType === 'صالة' ? `<p class="text-amber-400 font-bold"><i class="fa-solid fa-utensils"></i> رقم الطاولة: ${order.tableNo || '1'}</p>` : ''}
+              ${orderType === 'delivery' || orderType === 'توصيل' ? `
+                <p class="flex items-start gap-1.5 text-[11px] text-stone-300"><i class="fa-solid fa-location-dot text-amber-500 text-[10px] mt-0.5"></i> ${order.address || 'عنوان التوصيل غير مدخل'}</p>
+                ${landmark ? `<p class="text-amber-400 text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-map-pin text-[10px]"></i> علامة مميزة: ${landmark}</p>` : ''}
+                <div class="flex gap-3 text-[11px] text-amber-400 font-bold pt-1 border-t border-stone-800/80 mt-1">
+                  <span>الدور: ${order.floor || 'غير محدد'}</span>
+                  <span>الشقة: ${order.apt || 'غير محدد'}</span>
+                </div>
+              ` : ''}
+              ${orderNotes ? `<p class="text-amber-300 text-[11px] font-bold bg-amber-950/60 p-1.5 rounded-lg border border-amber-500/30 mt-1 flex items-start gap-1.5"><i class="fa-solid fa-note-sticky text-amber-400 text-[11px] mt-0.5"></i> <span>ملاحظات الطلب: ${orderNotes}</span></p>` : ''}
+            </div>
+
+            <div class="bg-stone-900/40 p-2.5 rounded-xl border border-stone-800">
+              <div class="flex justify-between items-center mb-1">
+                <p class="text-[10px] font-bold text-stone-400">الأصناف المحددة:</p>
+                <button onclick="addNewItemToOrder('${key}')" class="text-[10px] text-amber-400 font-bold hover:underline cursor-pointer">+ إضافة صنف</button>
+              </div>
+              ${itemsList}
+            </div>
+
+            ${orderType === 'delivery' || orderType === 'توصيل' ? `
+              <div class="bg-stone-900/60 p-2 rounded-xl border border-stone-800 flex items-center justify-between gap-2">
+                <label class="text-[11px] font-bold text-stone-300 shrink-0"><i class="fa-solid fa-motorcycle text-amber-500"></i> الطيار:</label>
+                <select onchange="assignDriver('${key}', this.value)" class="bg-stone-950 border border-stone-700 rounded-lg px-2.5 py-1 text-xs text-amber-400 font-bold w-full focus:outline-none focus:border-amber-500">
+                  <option value="" ${!currentDriver ? 'selected' : ''}>اختر الطيار...</option>
+                  ${driverOptionsHTML}
+                </select>
+              </div>
+            ` : ''}
+
+            <div class="space-y-1 text-xs text-stone-400 bg-stone-900/40 p-2.5 rounded-xl">
+              <div class="flex justify-between"><span>المجموع:</span><span>${order.subtotal || 0} ج.م</span></div>
+              <div class="flex justify-between items-center">
+                <span>التوصيل:</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-stone-200 font-bold">${order.deliveryFee || 0} ج.م</span>
+                  <button onclick="editDeliveryFee('${key}', ${order.deliveryFee || 0})" class="text-amber-500 hover:text-amber-400 text-[10px] bg-stone-800 px-1.5 py-0.5 rounded border border-stone-700 cursor-pointer">تعديل</button>
+                </div>
+              </div>
+              <div class="flex justify-between text-sm font-black text-amber-400 border-t border-stone-800 pt-1.5 mt-1">
+                <span>الإجمالي الكلي:</span>
+                <span>${order.total || 0} ج.م</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2 border-t border-stone-800">
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="acceptAndPrintOrder('${key}')" class="bg-amber-600 hover:bg-amber-700 text-white font-extrabold py-1.5 rounded-xl text-xs transition shadow flex justify-center items-center gap-1 cursor-pointer">
+                👨‍🍳 قبول وتحضير وطباعة
+              </button>
+              <button onclick="sendToDriver('${key}')" class="bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                🛵 خروج للتوصيل
+              </button>
+            </div>
+            <div class="grid grid-cols-4 gap-1">
+              <button onclick="updateOrderStatus('${key}', 'تم التسليم')" class="col-span-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                ✅ تسليم
+              </button>
+              <button onclick="printSingleReceipt('${key}')" class="col-span-1 bg-stone-800 hover:bg-stone-700 text-amber-400 py-1.5 rounded-xl text-xs font-bold transition flex justify-center items-center gap-1 border border-stone-700 cursor-pointer">
+                <i class="fa-solid fa-print"></i> فاتورة
+              </button>
+              <button onclick="printKitchenTicket('${key}')" class="col-span-1 bg-stone-800 hover:bg-stone-700 text-blue-400 py-1.5 rounded-xl text-xs font-bold transition flex justify-center items-center gap-1 border border-stone-700 cursor-pointer">
+                <i class="fa-solid fa-utensils"></i> مطبخ
+              </button>
+              <button onclick="updateOrderStatus('${key}', 'ملغي')" class="col-span-1 bg-red-950 hover:bg-red-700 text-red-300 hover:text-white py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                ❌ إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function openPhoneCallOrderModal() {
+      callCart = [];
+      document.getElementById('co-cust-name').value = '';
+      document.getElementById('co-cust-phone').value = '';
+      document.getElementById('co-cust-phone2').value = '';
+      document.getElementById('co-address').value = '';
+      document.getElementById('co-landmark').value = '';
+      document.getElementById('co-floor').value = '';
+      document.getElementById('co-apt').value = '';
+      if (document.getElementById('co-order-notes')) document.getElementById('co-order-notes').value = '';
+      filterCallMenuCategory('all');
+      renderCallCart();
+      document.getElementById('phone-call-modal').classList.remove('hidden');
+    }
+
+    function closePhoneCallOrderModal() {
+      document.getElementById('phone-call-modal').classList.add('hidden');
+    }
+
+    function toggleCallOrderFields() {
+      const type = document.getElementById('co-type').value;
+      const isDel = type === 'توصيل';
+      const isDine = type === 'dinein';
+
+      document.getElementById('co-delivery-fields').style.display = isDel ? 'block' : 'none';
+      document.getElementById('co-del-fee-box').style.display = isDel ? 'flex' : 'none';
+      document.getElementById('co-dinein-fields').style.display = isDine ? 'block' : 'none';
+      renderCallCart();
+    }
+
+    function filterCallMenuCategory(category) {
+      const grid = document.getElementById('call-menu-grid');
+      document.querySelectorAll('.call-cat-btn').forEach(btn => {
+        btn.className = "call-cat-btn bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer";
+      });
+
+      const filtered = category === 'all' ? mainRestaurantMenu : mainRestaurantMenu.filter(item => item.category === category);
+      
+      grid.innerHTML = filtered.map(item => `
+        <div class="bg-stone-900 border border-stone-800 hover:border-amber-500/50 rounded-2xl p-2.5 flex flex-col justify-between space-y-2 transition shadow">
+          <img src="${item.img}" alt="${item.name}" class="w-full h-20 object-cover rounded-xl">
+          <div>
+            <h5 class="font-bold text-xs text-white leading-tight">${item.name}</h5>
+            <span class="text-amber-400 font-black text-xs block mt-1">${item.price} ج.م</span>
+          </div>
+          <button onclick="addToCallCart(${item.id})" class="w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-extrabold text-xs py-1.5 rounded-xl transition flex justify-center items-center gap-1 cursor-pointer">
+            <i class="fa-solid fa-plus"></i> إضافة
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function addToCallCart(itemId) {
+      const item = mainRestaurantMenu.find(i => i.id === itemId);
+      if (!item) return;
+
+      const existingIndex = callCart.findIndex(c => c.id === itemId);
+      if (existingIndex > -1) {
+        callCart[existingIndex].qty += 1;
+      } else {
+        callCart.push({ id: item.id, name: item.name, price: item.price, qty: 1, notes: '' });
+      }
+      renderCallCart();
+    }
+
+    function updateCallCartQty(index, change) {
+      if (callCart[index]) {
+        callCart[index].qty += change;
+        if (callCart[index].qty <= 0) {
+          callCart.splice(index, 1);
+        }
+      }
+      renderCallCart();
+    }
+
+    function updateCallCartNote(index, noteVal) {
+      if (callCart[index]) {
+        callCart[index].notes = noteVal;
+      }
+    }
+
+    function renderCallCart() {
+      const container = document.getElementById('call-cart-items');
+      const countBadge = document.getElementById('call-cart-count');
+      const totalSpan = document.getElementById('call-cart-total');
+      const type = document.getElementById('co-type').value;
+
+      if (callCart.length === 0) {
+        container.innerHTML = `<p class="text-stone-500 text-center py-4 text-[11px]">اضغط على الأصناف من المنيو لإضافتها هنا</p>`;
+        countBadge.innerText = `0 صنف`;
+        totalSpan.innerText = `0 ج.م`;
+        return;
+      }
+
+      let subtotal = 0;
+      let totalQty = 0;
+
+      container.innerHTML = callCart.map((item, index) => {
+        subtotal += (item.price * item.qty);
+        totalQty += item.qty;
+        return `
+          <div class="bg-stone-950 p-2 rounded-xl border border-stone-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-stone-200 text-xs">${item.name}</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="updateCallCartQty(${index}, -1)" class="w-5 h-5 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700 flex items-center justify-center cursor-pointer">-</button>
+                <span class="font-black text-amber-400">${item.qty}</span>
+                <button onclick="updateCallCartQty(${index}, 1)" class="w-5 h-5 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700 flex items-center justify-center cursor-pointer">+</button>
+                <span class="text-stone-400 font-bold text-xs mr-2">${item.price * item.qty} ج.م</span>
+              </div>
+            </div>
+            <input type="text" value="${item.notes || ''}" onchange="updateCallCartNote(${index}, this.value)" placeholder="ملاحظة على الصنف (مثال: بدون ثومية)" class="w-full bg-stone-900 border border-stone-800 rounded px-2 py-0.5 text-[10px] text-amber-300 focus:outline-none">
+          </div>
+        `;
+      }).join('');
+
+      const delFee = type === 'توصيل' ? (parseFloat(document.getElementById('co-delivery-fee').value) || 0) : 0;
+      const grandTotal = subtotal + delFee;
+
+      countBadge.innerText = `${totalQty} صنف`;
+      totalSpan.innerText = `${grandTotal} ج.م`;
+    }
+
+    function saveCallOrder() {
+      const orderType = document.getElementById('co-type').value;
+      const custName = document.getElementById('co-cust-name').value.trim();
+      const custPhone = document.getElementById('co-cust-phone').value.trim();
+      const custPhone2 = document.getElementById('co-cust-phone2').value.trim();
+      const address = document.getElementById('co-address').value.trim();
+      const landmark = document.getElementById('co-landmark').value.trim();
+      const floor = document.getElementById('co-floor').value.trim();
+      const apt = document.getElementById('co-apt').value.trim();
+      const tableNo = document.getElementById('co-table-no').value.trim();
+      const orderNotesInput = document.getElementById('co-order-notes') ? document.getElementById('co-order-notes').value.trim() : '';
+      const deliveryFee = orderType === 'توصيل' ? (parseFloat(document.getElementById('co-delivery-fee').value) || 0) : 0;
+
+      if (!custName || !custPhone) {
+        alert("يرجى إدخال اسم العميل ورقم الهاتف الرئيسي 📞");
+        return;
+      }
+
+      if (callCart.length === 0) {
+        alert("يرجى اختيار صنف واحد على الأقل من المنيو!");
+        return;
+      }
+
+      const subtotal = callCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      const newRef = db.ref('orders').push();
+      const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      const createdAt = new Date().toISOString();
+
+      const newOrderData = {
+        orderId: orderId,
+        orderType: orderType,
+        status: 'جديد',
+        createdAt: createdAt,
+        date: createdAt.split('T')[0],
+        customer: { name: custName, phone: custPhone, phone2: custPhone2 },
+        phone: custPhone,
+        phone2: custPhone2,
+        address: address,
+        landmark: landmark,
+        floor: floor,
+        apt: apt,
+        tableNo: tableNo,
+        notes: orderNotesInput,
+        items: callCart.map(i => ({ name: i.name, price: i.price, qty: i.qty, notes: i.notes || '' })),
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        total: subtotal + deliveryFee
+      };
+
+      newRef.set(newOrderData, (err) => {
+        if (!err) {
+          closePhoneCallOrderModal();
+          alert("تم تسجيل طلب الاتصال بنجاح! 🚀");
+        } else {
+          alert("حدث خطأ أثناء إضافة الطلب.");
+        }
+      });
+    }
+
+    function editDeliveryFee(key, currentFee) {
+      const newFeeStr = prompt("أدخل قيمة رسوم التوصيل الجديدة (ج.م):", currentFee);
+      if (newFeeStr !== null && newFeeStr.trim() !== '') {
+        const newFee = parseFloat(newFeeStr) || 0;
+        const order = rawOrdersData[key];
+        if (order) {
+          const subtotal = Number(order.subtotal || 0);
+          const total = subtotal + newFee;
+          db.ref('orders/' + key).update({
+            deliveryFee: newFee,
+            total: total
+          });
+        }
+      }
+    }
+
+    function assignDriver(key, driverName) {
+      const cleanName = driverName.split('(')[0].trim();
+      db.ref('orders/' + key).update({
+        driverName: cleanName
+      });
+    }
+
+    function sendToDriver(key) {
+      const order = rawOrdersData[key];
+      if (!order) return;
+
+      if (!order.driverName) {
+        alert("يرجى اختيار الطيار أولاً قبل التغيير لإشعارات خروج التوصيل!");
+        return;
+      }
+
+      db.ref('orders/' + key).update({
+        status: 'في الطريق',
+        driverAccepted: false
+      });
+
+      const orderId = order.orderId || order.id || key.slice(-5);
+      const custPhone = order.customer ? order.customer.phone : (order.phone || '');
+      const custName = order.customer ? order.customer.name : (order.name || 'عميلنا العزيز');
+      const driverName = order.driverName || 'الطيار';
+
+      sendOneSignalNotificationToDriver(order, driverName);
+
+      if (custPhone) {
+        const message = `أهلاً بك يا ${custName} ❤️\nأوردرك رقم #${orderId} من مطعم *الركن الشامي* خرج للتوصيل الآن (${driverName}) 🛵💨\nإجمالي المبلغ: ${order.total || 0} ج.م\nنتمنى لك وجبة شهية! 😋`;
+        const cleanPhone = custPhone.replace(/\D/g, '');
+        const formattedPhone = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
+        const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+        window.open(waUrl, '_blank');
+      }
+    }
+
+    function sendOneSignalNotificationToDriver(order, driverName) {
+      if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) return;
+
+      const orderId = order.orderId || order.id || '---';
+      const custName = order.customer ? order.customer.name : (order.name || 'عميل');
+      const address = order.address || 'العنوان غير مدخل';
+      const total = order.total || 0;
+
+      const authHeader = ONESIGNAL_REST_API_KEY.startsWith("os_v2_") || ONESIGNAL_REST_API_KEY.startsWith("Key ")
+        ? (ONESIGNAL_REST_API_KEY.startsWith("Key ") ? ONESIGNAL_REST_API_KEY : `Key ${ONESIGNAL_REST_API_KEY}`)
+        : `Basic ${ONESIGNAL_REST_API_KEY}`;
+
+      fetch("https://onesignal.com/api/v1/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Authorization": authHeader
+        },
+        body: JSON.stringify({
+          app_id: ONESIGNAL_APP_ID,
+          filters: [
+            { field: "tag", key: "driver_name", relation: "=", value: driverName.trim().toLowerCase() }
+          ],
+          headings: { ar: "أوردر توصيل جديد 🛵", en: "New Order Assigned!" },
+          contents: { 
+            ar: `كابتن ${driverName}، لديك أوردر جديد رقم #${orderId}\nالعميل: ${custName}\nالعنوان: ${address}\nالإجمالي: ${total} ج.م`, 
+            en: `New order #${orderId} assigned.` 
+          },
+          data: {
+            orderId: orderId,
+            customerName: custName,
+            address: address,
+            phone: order.customer ? order.customer.phone : (order.phone || ''),
+            total: total,
+            items: order.items || []
+          },
+          url: window.location.origin + "/driver.html"
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("OneSignal push response:", data))
+      .catch(err => console.log("OneSignal push error:", err));
+    }
+
+    function editItemQty(key, itemIndex) {
+      const order = rawOrdersData[key];
+      if (!order || !order.items) return;
+      
+      const item = order.items[itemIndex];
+      const newQtyStr = prompt(`تعديل كمية (${item.name}) - ادخل 0 لحذف الصنف:`, item.qty);
+      if (newQtyStr !== null && newQtyStr.trim() !== '') {
+        const newQty = parseInt(newQtyStr);
+        if (isNaN(newQty)) return;
+
+        if (newQty <= 0) {
+          order.items.splice(itemIndex, 1);
+        } else {
+          order.items[itemIndex].qty = newQty;
+          const currentNote = item.notes || item.note || item.comment || '';
+          const noteStr = prompt(`تعديل الملاحظة على (${item.name}):`, currentNote);
+          if (noteStr !== null) {
+            order.items[itemIndex].notes = noteStr.trim();
+          }
+        }
+
+        recalculateOrderTotals(key, order.items);
+      }
+    }
+
+    function addNewItemToOrder(key) {
+      const order = rawOrdersData[key];
+      if (!order) return;
+
+      const itemName = prompt("أدخل اسم الصنف الجديد:");
+      if (!itemName) return;
+
+      const itemPriceStr = prompt("أدخل سعر الصنف (ج.م):");
+      const itemPrice = parseFloat(itemPriceStr);
+      if (isNaN(itemPrice) || itemPrice <= 0) return;
+
+      const itemQtyStr = prompt("أدخل الكمية:", "1");
+      const itemQty = parseInt(itemQtyStr) || 1;
+
+      const itemNotes = prompt("أدخل ملاحظة على الصنف (اختياري):", "");
+
+      const items = order.items || [];
+      items.push({ name: itemName, price: itemPrice, qty: itemQty, notes: itemNotes ? itemNotes.trim() : '' });
+
+      recalculateOrderTotals(key, items);
+    }
+
+    function recalculateOrderTotals(key, items) {
+      const order = rawOrdersData[key];
+      const subtotal = items.reduce((sum, i) => sum + (Number(i.price) * Number(i.qty)), 0);
+      const deliveryFee = Number(order.deliveryFee || 0);
+      const total = subtotal + deliveryFee;
+
+      db.ref('orders/' + key).update({
+        items: items,
+        subtotal: subtotal,
+        total: total
+      });
+    }
+
+    function updateOrderStatus(key, status) {
+      if (rawOrdersData[key]) {
+        rawOrdersData[key].status = status;
+      }
+      db.ref('orders/' + key + '/status').set(status);
+    }
+
+    // دالة قبول الأوردر والطباعة التلقائية (بون المطبخ أولاً ثم بون الفاتورة)
+    function acceptAndPrintOrder(key) {
+      updateOrderStatus(key, 'قيد التحضير');
+      
+      // طباعة بون التحضير (المطبخ) أولاً
+      printKitchenTicket(key, () => {
+        // بعد انتهاء طباعة بون المطبخ، يتم طباعة بون الفاتورة تلقائياً بعدها
+        setTimeout(() => {
+          printSingleReceipt(key);
+        }, 800);
+      });
+    }
+
+    function printSingleReceipt(key, callback) {
+      const order = rawOrdersData[key];
+      if (!order) {
+        if (callback) callback();
+        return;
+      }
+
+      const custName = order.customer ? order.customer.name : (order.name || 'عميل');
+      const custPhone = order.customer ? order.customer.phone : (order.phone || '-');
+      const custPhone2 = order.customer ? order.customer.phone2 : (order.phone2 || '');
+      const orderId = order.orderId || order.id || key.slice(-5);
+      const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : '';
+      const landmark = order.landmark || order.addressLandmark || '';
+      const orderNotes = order.notes || order.note || order.customerNote || order.orderNotes || '';
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
+          <p style="font-size: 13px; font-weight: bold; margin: 2px 0;">أصالة المذاق الشامي</p>
+          <div style="font-size: 18px; font-weight: 900; margin-top: 6px; border: 2px solid #000; padding: 4px 0; background: #eee;">
+            فاتورة طلب #${orderId}
+          </div>
+          <p style="font-size: 14px; font-weight: 900; margin-top: 6px;">نوع الطلب: ${order.orderType || 'توصيل'}</p>
+          <p style="font-size: 11px; font-weight: bold;">${timeStr}</p>
+        </div>
+
+        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; font-weight: 800;">
+          <p style="margin:3px 0;">العميل: ${custName}</p>
+          <p style="margin:3px 0;">الهاتف: ${custPhone}</p>
+          ${custPhone2 ? `<p style="margin:3px 0;">هاتف إضافي: ${custPhone2}</p>` : ''}
+          ${order.orderType === 'dinein' || order.orderType === 'صالة' ? `<p style="margin:3px 0; font-size: 16px;">رقم الطاولة: ${order.tableNo || '1'}</p>` : ''}
+          ${order.orderType === 'delivery' || order.orderType === 'توصيل' ? `
+            <p style="margin:3px 0;">العنوان: ${order.address || '-'}</p>
+            ${landmark ? `<p style="margin:3px 0;">علامة مميزة: ${landmark}</p>` : ''}
+            <p style="margin:3px 0;">الدور: ${order.floor || 'غير محدد'} - الشقة: ${order.apt || 'غير محدد'}</p>
+            ${order.driverName ? `<p style="margin:3px 0; background:#eee; padding:2px;">الطيار: ${order.driverName}</p>` : ''}
+          ` : ''}
+          ${orderNotes ? `<p style="margin:3px 0; font-size: 13px; font-weight: bold; background:#eee; padding:3px; border:1px solid #000;">ملاحظات الطلب: ${orderNotes}</p>` : ''}
+        </div>
+
+        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <table style="width: 100%; text-align: right; font-size: 13px; border-collapse: collapse; font-weight: 800;">
+            <thead>
+              <tr style="border-bottom: 2px solid #000; font-size: 14px;">
+                <th style="text-align: right; padding-bottom: 4px;">الصنف</th>
+                <th style="text-align: center; padding-bottom: 4px;">العدد</th>
+                <th style="text-align: left; padding-bottom: 4px;">السعر</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(order.items || []).map(i => {
+                const itemNote = i.notes || i.note || i.comment || i.options || '';
+                return `
+                <tr style="border-bottom: 1px dashed #ccc;">
+                  <td style="padding: 4px 0; font-weight: 900; font-size: 14px;">
+                    ${i.name}
+                    ${itemNote ? `<div style="font-size:11px; font-weight:normal; color:#444;">ملاحظة: ${itemNote}</div>` : ''}
+                  </td>
+                  <td style="text-align: center; padding: 4px 0; font-size: 15px; font-weight: 900;">${i.qty || 1}</td>
+                  <td style="text-align: left; padding: 4px 0; font-weight: 900;">${(Number(i.price) * (i.qty || 1))}</td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 900;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+            <span>المجموع:</span><span>${order.subtotal || 0} ج.م</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+            <span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; border-top: 2px solid #000; padding-top: 6px; margin-top: 6px;">
+            <span>الإجمالي:</span><span>${order.total || 0} ج.م</span>
+          </div>
+        </div>
+
+        <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;">
+          <p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p>
+        </div>
+      `;
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+        if (callback) callback();
+      }, 150);
+    }
+
+    function printKitchenTicket(key, callback) {
+      const order = rawOrdersData[key];
+      if (!order) {
+        if (callback) callback();
+        return;
+      }
+
+      const orderId = order.orderId || order.id || key.slice(-5);
+      const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+      const orderNotes = order.notes || order.note || order.customerNote || order.orderNotes || '';
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <h2 style="font-size: 22px; font-weight: 900; margin: 0; background: #000; color: #fff; padding: 4px 0;">بون مطبخ 👨‍🍳</h2>
+          <p style="font-size: 18px; font-weight: 900; margin: 6px 0;">رقم الطلب: #${orderId}</p>
+          <p style="font-size: 14px; font-weight: 900;">النوع: ${order.orderType || 'توصيل'} | الوقت: ${timeStr}</p>
+          ${order.tableNo ? `<p style="font-size: 16px; font-weight: 900; margin-top:4px;">طاولة رقم: ${order.tableNo}</p>` : ''}
+          ${orderNotes ? `<p style="font-size: 15px; font-weight: 900; background: #eee; border: 2px solid #000; color: #000; padding: 4px; margin-top: 6px;">⚠️ ملاحظات الطلب العامة: ${orderNotes}</p>` : ''}
+        </div>
+
+        <div style="border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <table style="width: 100%; text-align: right; font-size: 15px; border-collapse: collapse; font-weight: 900;">
+            <thead>
+              <tr style="border-bottom: 2px solid #000; font-size: 16px;">
+                <th style="text-align: right; padding-bottom: 4px;">الصنف</th>
+                <th style="text-align: center; padding-bottom: 4px;">العدد</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(order.items || []).map(i => {
+                const itemNote = i.notes || i.note || i.comment || i.options || '';
+                return `
+                <tr style="border-bottom: 1px dashed #000;">
+                  <td style="padding: 6px 0; font-size: 16px;">
+                    ${i.name}
+                    ${itemNote ? `<div style="font-size:13px; font-weight:900; background:#eee; padding:2px 4px; margin-top:2px;">⚠️ ملاحظة: ${itemNote}</div>` : ''}
+                  </td>
+                  <td style="text-align: center; padding: 6px 0; font-size: 20px; font-weight: 900;">${i.qty || 1}</td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+        if (callback) callback();
+      }, 150);
+    }
+
+    function openDriverReportModal() {
+      const driverSelect = document.getElementById('driver-select');
+      const orders = Object.values(rawOrdersData || {});
+      
+      const activeDrivers = new Set(defaultDriversList);
+      orders.forEach(o => {
+        if (o.driverName && o.driverName.trim()) activeDrivers.add(o.driverName.trim());
+      });
+
+      driverSelect.innerHTML = `<option value="all">كل الطيارين (الجميع)</option>`;
+      activeDrivers.forEach(drv => {
+        const online = isDriverOnline(drv);
+        const badge = online ? "🟢 (متصل الآن)" : "🔴 (غير متصل)";
+        driverSelect.innerHTML += `<option value="${drv}">${drv} ${badge}</option>`;
+      });
+
+      renderDriverReportDetails();
+      document.getElementById('driver-report-modal').classList.remove('hidden');
+    }
+
+    function closeDriverReportModal() {
+      document.getElementById('driver-report-modal').classList.add('hidden');
+    }
+
+    function renderDriverReportDetails() {
+      const selectedDriver = document.getElementById('driver-select').value;
+      const selectedDate = document.getElementById('shift-date-picker').value;
+      const container = document.getElementById('driver-report-content');
+
+      let entries = Object.entries(rawOrdersData || {});
+
+      if (selectedDate) {
+        entries = entries.filter(([key, o]) => {
+          const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '') || (o.dateTime ? o.dateTime.split(' ')[0] : '');
+          return orderDate ? orderDate.includes(selectedDate) : true;
+        });
+      }
+
+      entries = entries.filter(([key, o]) => {
+        const tp = o.orderType || o.type || 'توصيل';
+        return tp === 'توصيل' || tp === 'delivery';
+      });
+
+      if (selectedDriver !== 'all') {
+        entries = entries.filter(([key, o]) => (o.driverName || '').trim() === selectedDriver.trim());
+      }
+
+      const totalAssigned = entries.length;
+      const deliveredOrders = entries.filter(([key, o]) => (o.status === 'تم التسليم' || o.status === 'مكتمل'));
+      const deliveredCount = deliveredOrders.length;
+      
+      const totalRevenue = deliveredOrders.reduce((sum, [k, o]) => sum + Number(o.total || 0), 0);
+      const totalDeliveryFees = deliveredOrders.reduce((sum, [k, o]) => sum + Number(o.deliveryFee || 0), 0);
+
+      let html = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">الطلبات المسندة</span>
+            <span class="text-xl font-black text-amber-400">${totalAssigned} طلب</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">تم التسليم</span>
+            <span class="text-xl font-black text-emerald-400">${deliveredCount} طلب</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">خدمات التوصيل</span>
+            <span class="text-xl font-black text-blue-400">${totalDeliveryFees} ج.م</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">إجمالي المحصل</span>
+            <span class="text-xl font-black text-amber-500">${totalRevenue} ج.م</span>
+          </div>
+        </div>
+
+        <div class="bg-stone-900/80 p-3.5 rounded-2xl border border-stone-800 space-y-3">
+          <h4 class="font-black text-amber-400 text-xs border-b border-stone-800 pb-2 flex justify-between items-center">
+            <span>تفاصيل طلبات الطيار (${selectedDriver === 'all' ? 'جميع الطيارين' : selectedDriver}):</span>
+            ${selectedDriver !== 'all' ? `<span class="text-[11px] px-2.5 py-0.5 rounded-full ${isDriverOnline(selectedDriver) ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' : 'bg-red-950 text-red-400 border border-red-800'}">
+              ${isDriverOnline(selectedDriver) ? '🟢 التطبيق مفتوح ومفعل' : '🔴 غير متصل حالياً'}
+            </span>` : ''}
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+              <thead>
+                <tr class="text-stone-400 border-b border-stone-800 text-[11px]">
+                  <th class="py-2 px-1">الطلب</th>
+                  <th class="py-2 px-1">الطيار</th>
+                  <th class="py-2 px-1">العميل</th>
+                  <th class="py-2 px-1">العنوان</th>
+                  <th class="py-2 px-1">التوصيل</th>
+                  <th class="py-2 px-1">الإجمالي</th>
+                  <th class="py-2 px-1">الحالة</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-800/60">
+      `;
+
+      if (entries.length === 0) {
+        html += `<tr><td colspan="7" class="text-center py-6 text-stone-500 font-bold">لا توجد طلبات توصيل مسجلة لهذا الاختيار.</td></tr>`;
+      } else {
+        entries.forEach(([key, o]) => {
+          const orderId = o.orderId || o.id || key.slice(-5);
+          const custName = o.customer ? o.customer.name : (o.name || 'عميل');
+          const drv = o.driverName || 'غير محدد';
+          const status = o.status || 'جديد';
+          const isDone = (status === 'تم التسليم' || status === 'مكتمل');
+          const online = isDriverOnline(drv);
+
+          html += `
+            <tr class="${isDone ? 'text-stone-200' : 'text-stone-400'}">
+              <td class="py-2.5 px-1 font-black text-amber-400">#${orderId}</td>
+              <td class="py-2.5 px-1 font-bold text-stone-300">
+                ${drv} ${online ? '<span class="text-[10px] text-emerald-400">🟢</span>' : '<span class="text-[10px] text-red-400">🔴</span>'}
+              </td>
+              <td class="py-2.5 px-1 font-medium">${custName}</td>
+              <td class="py-2.5 px-1 text-[11px] truncate max-w-[130px]">${o.address || '-'}</td>
+              <td class="py-2.5 px-1 text-blue-400 font-bold">${o.deliveryFee || 0} ج.م</td>
+              <td class="py-2.5 px-1 text-amber-400 font-bold">${o.total || 0} ج.م</td>
+              <td class="py-2.5 px-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-lg ${isDone ? 'bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold' : 'bg-stone-800 text-stone-400'}">
+                  ${status}
+                </span>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function printDriversReport() {
+      const selectedDriver = document.getElementById('driver-select').value;
+      const selectedDate = document.getElementById('shift-date-picker').value || new Date().toISOString().split('T')[0];
+      
+      let entries = Object.entries(rawOrdersData || {});
+
+      if (selectedDate) {
+        entries = entries.filter(([key, o]) => {
+          const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '') || (o.dateTime ? o.dateTime.split(' ')[0] : '');
+          return orderDate ? orderDate.includes(selectedDate) : true;
+        });
+      }
+
+      entries = entries.filter(([key, o]) => {
+        const tp = o.orderType || o.type || 'توصيل';
+        return tp === 'توصيل' || tp === 'delivery';
+      });
+
+      if (selectedDriver !== 'all') {
+        entries = entries.filter(([key, o]) => (o.driverName || '').trim() === selectedDriver.trim());
+      }
+
+      const deliveredOrders = entries.filter(([key, o]) => (o.status === 'تم التسليم' || o.status === 'مكتمل'));
+      const totalRevenue = deliveredOrders.reduce((sum, [k, o]) => sum + Number(o.total || 0), 0);
+      const totalDeliveryFees = deliveredOrders.reduce((sum, [k, o]) => sum + Number(o.deliveryFee || 0), 0);
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
+          <p style="font-size: 14px; font-weight: 900; margin: 4px 0;">تقرير حساب الديلفري والطيارين 🛵</p>
+          <p style="font-size: 12px; font-weight: bold;">الطيار: ${selectedDriver === 'all' ? 'جميع الطيارين' : selectedDriver}</p>
+          <p style="font-size: 11px; font-weight: bold;">التاريخ: ${selectedDate}</p>
+        </div>
+
+        <div style="border-bottom: 2px dashed #000; padding-bottom: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 800;">
+          <div style="display:flex; justify-content: space-between; margin-bottom: 3px;"><span>عدد الطلبات المسندة:</span><span>${entries.length}</span></div>
+          <div style="display:flex; justify-content: space-between; margin-bottom: 3px;"><span>عدد الطلبات المسلمة:</span><span>${deliveredOrders.length}</span></div>
+          <div style="display:flex; justify-content: space-between; margin-bottom: 3px;"><span>إجمالي رسوم التوصيل:</span><span>${totalDeliveryFees} ج.م</span></div>
+          <div style="display:flex; justify-content: space-between; font-size: 15px; font-weight: 900; border-top: 1px solid #000; padding-top: 4px; margin-top: 4px;">
+            <span>إجمالي المبلغ المحصل:</span><span>${totalRevenue} ج.م</span>
+          </div>
+        </div>
+
+        <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <table style="width: 100%; text-align: right; font-size: 12px; border-collapse: collapse; font-weight: 800;">
+            <thead>
+              <tr style="border-bottom: 2px solid #000;">
+                <th style="padding-bottom: 4px;">#</th>
+                <th style="padding-bottom: 4px;">العميل</th>
+                <th style="padding-bottom: 4px;">توصيل</th>
+                <th style="padding-bottom: 4px; text-align: left;">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${deliveredOrders.map(([k, o]) => `
+                <tr style="border-bottom: 1px dashed #ccc;">
+                  <td style="padding: 3px 0;">#${o.orderId || o.id || k.slice(-4)}</td>
+                  <td style="padding: 3px 0;">${o.customer ? o.customer.name : (o.name || 'عميل')}</td>
+                  <td style="padding: 3px 0;">${o.deliveryFee || 0}</td>
+                  <td style="padding: 3px 0; text-align: left;">${o.total || 0}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="text-align: center; font-size: 11px; font-weight: 900; margin-top: 15px;">
+          <p style="margin:3px 0;">توقيع الكاشير: ........................</p>
+          <p style="margin:3px 0;">توقيع الطيار: ........................</p>
+        </div>
+      `;
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+      }, 150);
+    }
+
+    function openShiftReportModal() {
+      renderShiftReport();
+      document.getElementById('shift-report-modal').classList.remove('hidden');
+    }
+
+    function closeShiftReportModal() {
+      document.getElementById('shift-report-modal').classList.add('hidden');
+    }
+
+    function renderShiftReport() {
+      const selectedDate = document.getElementById('shift-date-picker').value || new Date().toISOString().split('T')[0];
+      document.getElementById('shift-report-date-label').innerText = `تاريخ الوردية: ${selectedDate}`;
+
+      let entries = Object.entries(rawOrdersData || {});
+
+      if (selectedDate) {
+        entries = entries.filter(([key, o]) => {
+          const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '') || (o.dateTime ? o.dateTime.split(' ')[0] : '');
+          return orderDate ? orderDate.includes(selectedDate) : true;
+        });
+      }
+
+      const validEntries = entries.filter(([k, o]) => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
+      const cancelledEntries = entries.filter(([k, o]) => (o.status || 'جديد') === 'ملغي' || (o.status || 'جديد') === 'مرفوض');
+
+      const deliveryOrders = validEntries.filter(([k, o]) => (o.orderType || o.type || 'توصيل') === 'توصيل' || (o.orderType || o.type) === 'delivery');
+      const dineinOrders = validEntries.filter(([k, o]) => (o.orderType || o.type) === 'صالة' || (o.orderType || o.type) === 'dinein');
+      const takeawayOrders = validEntries.filter(([k, o]) => (o.orderType || o.type) === 'سفري' || (o.orderType || o.type) === 'takeaway');
+
+      const deliveryRevenue = deliveryOrders.reduce((s, [k, o]) => s + Number(o.total || 0), 0);
+      const deliveryFees = deliveryOrders.reduce((s, [k, o]) => s + Number(o.deliveryFee || 0), 0);
+      const dineinRevenue = dineinOrders.reduce((s, [k, o]) => s + Number(o.total || 0), 0);
+      const takeawayRevenue = takeawayOrders.reduce((s, [k, o]) => s + Number(o.total || 0), 0);
+
+      const grandTotal = validEntries.reduce((s, [k, o]) => s + Number(o.total || 0), 0);
+
+      const container = document.getElementById('shift-report-content');
+      container.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">إجمالي الطلبات</span>
+            <span class="text-xl font-black text-amber-400">${entries.length} طلب</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">الطلبات المقبولة</span>
+            <span class="text-xl font-black text-emerald-400">${validEntries.length} طلب</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">طلبات ملغاة</span>
+            <span class="text-xl font-black text-red-400">${cancelledEntries.length} طلب</span>
+          </div>
+          <div class="bg-stone-900 p-3 rounded-2xl border border-stone-800">
+            <span class="text-stone-400 text-[11px] font-bold block mb-1">إجمالي الإيراد</span>
+            <span class="text-xl font-black text-amber-500">${grandTotal} ج.م</span>
+          </div>
+        </div>
+
+        <div class="bg-stone-900/80 p-3.5 rounded-2xl border border-stone-800 space-y-2 mt-4">
+          <h4 class="font-black text-amber-400 text-xs border-b border-stone-800 pb-2">تفاصيل مبيعات الوردية:</h4>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between text-stone-300"><span>طلبات التوصيل (${deliveryOrders.length}):</span><span>${deliveryRevenue} ج.م</span></div>
+            <div class="flex justify-between text-stone-300"><span>رسوم التوصيل:</span><span>${deliveryFees} ج.م</span></div>
+            <div class="flex justify-between text-stone-300"><span>طلبات الصالة (${dineinOrders.length}):</span><span>${dineinRevenue} ج.م</span></div>
+            <div class="flex justify-between text-stone-300"><span>طلبات السفري (${takeawayOrders.length}):</span><span>${takeawayRevenue} ج.م</span></div>
+            <div class="flex justify-between text-amber-400 font-black text-sm border-t border-stone-800 pt-2"><span>المجموع الكلي المحصل:</span><span>${grandTotal} ج.م</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function printDailyShiftReport() {
+      const selectedDate = document.getElementById('shift-date-picker').value || new Date().toISOString().split('T')[0];
+      let entries = Object.entries(rawOrdersData || {});
+
+      if (selectedDate) {
+        entries = entries.filter(([key, o]) => {
+          const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '') || (o.dateTime ? o.dateTime.split(' ')[0] : '');
+          return orderDate ? orderDate.includes(selectedDate) : true;
+        });
+      }
+
+      const validEntries = entries.filter(([k, o]) => (o.status || 'جديد') !== 'ملغي' && (o.status || 'جديد') !== 'مرفوض');
+      const grandTotal = validEntries.reduce((s, [k, o]) => s + Number(o.total || 0), 0);
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
+          <p style="font-size: 14px; font-weight: 900; margin: 4px 0;">تقرير اليومية وتقفيل الوردية 📊</p>
+          <p style="font-size: 12px; font-weight: bold;">التاريخ: ${selectedDate}</p>
+        </div>
+        <div style="font-size: 13px; font-weight: 800; line-height: 1.6;">
+          <p>إجمالي عدد الطلبات: ${entries.length}</p>
+          <p>الطلبات المقبولة: ${validEntries.length}</p>
+          <p style="font-size: 16px; font-weight: 900; border-top: 2px solid #000; padding-top: 6px; margin-top: 6px;">
+            صافي المحصل: ${grandTotal} ج.م
+          </p>
+        </div>
+      `;
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+      }, 150);
+    }
+
+    function closeAndTransferShift() {
+      if (confirm("هل أنت تأكد من إغلاق وترحيل الوردية الحالية لليوم الجديد؟")) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('shift-date-picker').value = tomorrow.toISOString().split('T')[0];
+        filterOrders();
+        closeShiftReportModal();
+        alert("تم إغلاق الوردية والانتقال لليوم الجديد بنجاح 🚀");
+      }
+    }
+  </script>
+</body>
+</html>
