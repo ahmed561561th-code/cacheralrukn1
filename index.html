@@ -634,7 +634,7 @@
       { id: 83, name: "باكيت بطاطس شيدر ", price: 30, category: "مقبلات ساخنة ", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPRRtMTEQgSN9nqFF1d3TmwW6Mt5v0M9XlUX14zrr3htUcMFnWcBRTf7nYIfAykcaTNM4FI588dVt_v2q2G7bnJgphNW3VBapWEDqo7016NLCHGm2mIcCqsK8K4mClsNQ1ULaOrSoiaP1MT_OPGUlHUmI4tH0UVDizqO8ZL0No8ON6Gmpj74UUuoShmaQ/s1600/%D8%A8%D8%B7%D8%A7%D8%B7%D8%B3-%D9%85%D9%82%D9%84%D9%8A%D8%A9-French-Fries.jpg" },
 
       { id: 84, name: "تومية عادي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
-      { id: 85, name: "تومية سبايسي ", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRecall-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
+      { id: 85, name: "تومية سبايسي ", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 86, name: "تومية صيامي", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 87, name: "صوص بربكيو", price: 15, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
       { id: 88, name: "صوص شيدر", price: 25, category: "مقبلات باردا", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpkcb1QIXgIIdxHt270O-odnWU88ltqLfDwJ4eFcY65TE0woPNgd2PU5r-G7njCU6kdos9vRam4gD1VWWSGx-OxPVpowC0U8yo7AKj7YgfKJ7wsbd0YvqLxHJ0Zkh21Nssd3B8PDk2iA9X-hJ52Z6mJbiUgQhPUO1hCQ_mu63PbXn8IsEd47GNUKKkec8/s1600/%D8%A8%D8%A7%D8%B1%D8%AF%D8%A9.jpg" },
@@ -1034,13 +1034,35 @@
     function handleAlertAudio(orders) {
       const alertAudio = document.getElementById('order-alert-sound');
       const deliveredAudio = document.getElementById('delivered-alert-sound');
-      if (!alertAudio) return;
+      if (!alertAudio || !deliveredAudio) return;
 
       const today = new Date().toISOString().split('T')[0];
+      
+      // Check for new orders
       const hasNewOrderToday = Object.values(orders).some(o => {
         const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '');
         return (o.status === 'جديد' || !o.status) && (orderDate === today || !orderDate);
       });
+
+      // Check if any order status changed to 'تم التسليم' or 'مكتمل'
+      let hasNewlyDelivered = false;
+      if (!isInitialLoad && previousOrdersData) {
+        for (const [key, newOrd] of Object.entries(orders)) {
+          const oldOrd = previousOrdersData[key];
+          const newStatus = newOrd.status || 'جديد';
+          const oldStatus = oldOrd ? (oldOrd.status || 'جديد') : '';
+          
+          if ((newStatus === 'تم التسليم' || newStatus === 'مكتمل') && (oldStatus !== 'تم التسليم' && oldStatus !== 'مكتمل')) {
+            hasNewlyDelivered = true;
+            break;
+          }
+        }
+      }
+
+      if (hasNewlyDelivered && audioAllowed) {
+        deliveredAudio.currentTime = 0;
+        deliveredAudio.play().catch(e => {});
+      }
 
       if (hasNewOrderToday && audioAllowed && !isInitialLoad) {
         if (alertAudio.paused) alertAudio.play().catch(e => {});
@@ -1048,6 +1070,7 @@
         alertAudio.pause();
         alertAudio.currentTime = 0;
       }
+      
       previousOrdersData = JSON.parse(JSON.stringify(orders));
     }
 
@@ -1536,6 +1559,7 @@
       const custPhone = order.customer ? order.customer.phone : (order.phone || '-');
       const orderId = order.orderId || order.id || key.slice(-5);
       const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : '';
+      const assignedDriver = order.driverName ? order.driverName : 'غير محدد';
 
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
@@ -1552,6 +1576,7 @@
           <p style="margin:3px 0;">العنوان: ${order.address || '-'}</p>
           ${order.landmark ? `<p style="margin:3px 0;">علامة: ${order.landmark}</p>` : ''}
           <p style="margin:3px 0;">دور: ${order.floor || '-'} | شقة: ${order.apt || '-'}</p>
+          <p style="margin:4px 0; font-weight: 900; color: #000;">🛵 الطيار المعين: ${assignedDriver}</p>
         </div>
         <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
           <table style="width: 100%; text-align: right; font-size: 13px; border-collapse: collapse; font-weight: 800;">
