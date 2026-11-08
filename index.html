@@ -50,7 +50,7 @@
 </head>
 <body class="bg-stone-100 text-stone-800 min-h-screen pb-12 selection:bg-amber-400 selection:text-black">
 
-  <audio id="order-alert-sound" loop preload="auto" src="https://notificationsounds.com/storage/sounds/file-sounds-1222-did-it.mp3"></audio>
+  <audio id="order-alert-sound" loop preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
   <audio id="delivered-alert-sound" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
   <!-- الهيدر الرئيسي -->
@@ -1078,8 +1078,8 @@
       printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
           <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
-          <p style="font-size: 13px; font-weight: bold; margin: 2px 0;">أشهي الماكولات الشورية </p>
-          <div style="font-size: 18px; font-weight: 900; margin-top: 6px; border: 2px solid #000; padding: 4px 0;">فاتورة #${orderId}</div>
+          <p style="font-size: 13px; font-weight: bold; margin: 2px 0;">أشهي الماكولات السورية</p>
+          <div style="font-size: 18px; font-weight: 900; margin-top: 6px; border: 2px solid #000; padding: 4px 0;">اوردر #${orderId}</div>
           <p style="font-size: 13px; font-weight: 900; margin-top: 4px;">طريقة الدفع: ${paymentText}</p>
           <p style="font-size: 11px; font-weight: bold;">${timeStr}</p>
         </div>
@@ -1108,11 +1108,9 @@
           <div style="display: flex; justify-content: space-between;"><span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span></div>
           <div style="display: flex; justify-content: space-between; font-size: 17px; border-top: 2px solid #000; padding-top: 4px; margin-top: 4px;"><span>الإجمالي:</span><span>${order.total || 0} ج.م</span></div>
         </div>
-  ${invoiceBarcodeUrl ? `
-          <div style="text-align: center; margin-top: 10px; padding-top: 6px;">
+   <div style="text-align: center; margin-top: 10px; padding-top: 6px;">
             <img id="receipt-barcode-img" src="${invoiceBarcodeUrl}" alt="Barcode" style="width: 110px; height: 110px; object-fit: contain; margin: 0 auto; display: block;" />
           </div>
-        ` : ''}
         
         <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;"><p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p></div>
       `;
@@ -1129,10 +1127,10 @@
 
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
-        <div style="text-align: center; font-size: 16px; font-weight: 900; margin-bottom: 2px;">بون تحضير مطبخ</div>
-        <div style="text-align: center; font-size: 13px; font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 6px;">
-          رقم الطلب: #${orderId} | النوع: ${order.orderType || 'توصيل'}
-          <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">التاريخ: ${dateStr} | الوقت: ${timeStr}</div>
+        <div style="text-align: center; font-size: 18px; font-weight: 900; margin-bottom: 2px;">Summary</div>
+        <div style="text-align: center; font-size: 16px; font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 6px;">
+          رقم الاوردر: #${orderId} | النوع: ${order.orderType || 'توصيل'}
+          <div style="font-size: 15px; font-weight: bold; margin-top: 2px;">التاريخ: ${dateStr} | الوقت: ${timeStr}</div>
         </div>
         <table style="width: 100%; text-align: right; font-size: 14px; border-collapse: collapse; font-weight: 900;">
           <thead><tr style="border-bottom: 2px solid #000;"><th style="padding-bottom: 4px; text-align: right;">الصنف</th><th style="padding-bottom: 4px; text-align: center; width: 50px;">العدد</th></tr></thead>
