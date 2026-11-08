@@ -1108,10 +1108,8 @@
           <div style="display: flex; justify-content: space-between;"><span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span></div>
           <div style="display: flex; justify-content: space-between; font-size: 17px; border-top: 2px solid #000; padding-top: 4px; margin-top: 4px;"><span>الإجمالي:</span><span>${order.total || 0} ج.م</span></div>
         </div>
-   <div style="text-align: center; margin-top: 10px; padding-top: 6px;">
-            <img id="receipt-barcode-img" src="${invoiceBarcodeUrl}" alt="Barcode" style="width: 110px; height: 110px; object-fit: contain; margin: 0 auto; display: block;" />
-          </div>
-        
+
+      
         <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;"><p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p></div>
       `;
       printArea.classList.remove('hidden');
