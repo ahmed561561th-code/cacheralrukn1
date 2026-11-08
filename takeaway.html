@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>واجهة السفري والتيك أواي - مطعم الركن الشامي</title>
+  <title>واجهة السفري والدليفري - مطعم الركن الشامي</title>
 
   <!-- Google Fonts & Tailwind CSS & FontAwesome -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,8 +21,8 @@
       font-family: 'Tajawal', sans-serif;
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #1c1917; }
-    ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
 
     @media print {
@@ -41,90 +41,154 @@
     }
   </style>
 </head>
-<body class="bg-stone-900 text-stone-100 min-h-screen selection:bg-amber-500 selection:text-black flex flex-col">
+<body class="bg-slate-100 text-slate-800 min-h-screen selection:bg-amber-500 selection:text-black flex flex-col">
 
   <!-- الهيدر الرئيسي -->
-  <header class="bg-stone-950 border-b border-stone-800 p-3 sticky top-0 z-30 shadow-2xl">
+  <header class="bg-white border-b border-slate-200 p-3 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-stone-950 flex items-center justify-center font-black text-xl shadow-lg">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md">
           🛍️
         </div>
         <div>
-          <h1 class="text-lg font-black text-amber-500 flex items-center gap-2">
-            نظام السفري والشباك السريع (تيك أواي)
-            <span class="text-[10px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-700/50">مباشر</span>
+          <h1 class="text-lg font-black text-slate-900 flex items-center gap-2">
+            نظام السفري والدليفري السريع
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">مباشر</span>
           </h1>
-          <p class="text-[11px] text-stone-400">ضرب الطلبات المباشرة والربط التلقائي باليومية والتقارير</p>
+          <p class="text-[11px] text-slate-500">ضرب طلبات التيك أواي والدليفري مع استدعاء بيانات العملاء تلقائياً</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <!-- زر فتح النافذة المنبثقة لسجل الأوردرات -->
-        <button onclick="openHistoryModal()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2 font-bold text-xs transition cursor-pointer">
-          <i class="fa-solid fa-receipt text-amber-400"></i>
+        <button onclick="openHistoryModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 px-3.5 py-1.5 rounded-xl flex items-center gap-2 font-bold text-xs transition cursor-pointer shadow-sm">
+          <i class="fa-solid fa-receipt text-amber-600"></i>
           <span>سجل أوردرات اليوم</span>
-          <span class="bg-amber-500 text-stone-950 px-2 py-0.5 rounded-full font-black text-[10px]" id="header-today-count">0</span>
+          <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full font-black text-[10px]" id="header-today-count">0</span>
         </button>
 
-        <div class="bg-stone-900 border border-stone-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
-          <span class="text-xs text-stone-400 font-bold">رقم الأوردر التالي:</span>
-          <span class="text-base font-black text-amber-400" id="next-order-num">#1</span>
+        <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+          <span class="text-xs text-slate-500 font-bold">رقم الأوردر التالي:</span>
+          <span class="text-base font-black text-amber-600" id="next-order-num">#1</span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- محتوى كاشير التيك أواي -->
+  <!-- محتوى كاشير التيك أواي والدليفري -->
   <main class="max-w-7xl mx-auto p-3 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 w-full">
 
-    <!-- قسم المنيو والأصناف -->
-    <div class="lg:col-span-7 bg-stone-950 border border-stone-800 rounded-2xl p-3 flex flex-col h-[84vh]">
-      <!-- فلاتر الأقسام -->
-      <div class="flex gap-2 overflow-x-auto pb-2 mb-3 border-b border-stone-800 shrink-0" id="categories-container">
-        <button class="menu-cat-btn bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer" onclick="filterMenuCategory('all')">الكل</button>
+    <!-- قائمة الأقسام الجانبية (Sidebar) -->
+    <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-3 flex flex-col h-[85vh] shadow-sm">
+      <h3 class="font-black text-xs text-slate-700 border-b border-slate-200 pb-2 mb-2.5 flex items-center gap-1.5">
+        <i class="fa-solid fa-bars-staggered text-amber-500"></i> أقسام المنيو
+      </h3>
+      <div class="space-y-1.5 overflow-y-auto pr-1 flex-1" id="categories-container">
+        <button class="menu-cat-btn w-full text-right bg-amber-500 text-slate-950 font-black px-3.5 py-2.5 rounded-xl text-xs transition cursor-pointer shadow-sm">الكل</button>
       </div>
-
-      <!-- شبكة المنتجات -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 overflow-y-auto pr-1 flex-1" id="menu-grid"></div>
     </div>
 
-    <!-- قسم فاتورة وسلة التيك أواي -->
-    <div class="lg:col-span-5 bg-stone-950 border border-stone-800 rounded-2xl p-3 flex flex-col justify-between h-[84vh]">
+    <!-- شبكة الأصناف -->
+    <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-3 flex flex-col h-[85vh] shadow-sm">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-2 mb-2.5">
+        <h3 class="font-black text-xs text-slate-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-utensils text-amber-500"></i> الأصناف المتاحة
+        </h3>
+        <input type="text" id="menu-search-input" onkeyup="filterMenuItemsSearch()" placeholder="بحث عن صنف..." class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-800 w-36 focus:outline-none focus:border-amber-500">
+      </div>
+      <div class="grid grid-cols-2 gap-2.5 overflow-y-auto pr-1 flex-1" id="menu-grid"></div>
+    </div>
+
+    <!-- قسم الفاتورة وبيانات العميل -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-3 flex flex-col justify-between h-[85vh] shadow-sm">
       
-      <div class="space-y-2 border-b border-stone-800 pb-2">
-        <div class="flex justify-between items-center">
-          <h3 class="font-black text-sm text-amber-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-cart-shopping"></i> فاتورة الأوردر الحالي
-          </h3>
-          <span class="text-[11px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold" id="cart-count-badge">0 صنف</span>
+      <div class="space-y-2 border-b border-slate-200 pb-2">
+        
+        <!-- نوع الأوردر (تيك أواي / دليفري) -->
+        <div class="flex justify-between items-center gap-2">
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl w-full border border-slate-200">
+            <button type="button" onclick="setOrderType('takeaway')" id="type-takeaway-btn" class="bg-amber-500 text-slate-950 font-black py-1.5 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1">
+              🛍️ تيك أواي
+            </button>
+            <button type="button" onclick="setOrderType('delivery')" id="type-delivery-btn" class="bg-transparent text-slate-600 font-bold py-1.5 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1 hover:bg-slate-200">
+              🛵 طلب دليفري
+            </button>
+          </div>
+          <span class="text-[11px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold shrink-0" id="cart-count-badge">0 صنف</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <input type="text" id="cust-name" placeholder="اسم العميل (اختياري)" class="w-full bg-stone-900 border border-stone-800 rounded-xl p-2 text-white text-xs focus:outline-none focus:border-amber-500">
-          <input type="text" id="cust-phone" placeholder="رقم الهاتف (اختياري)" class="w-full bg-stone-900 border border-stone-800 rounded-xl p-2 text-white text-xs focus:outline-none focus:border-amber-500">
+        <!-- شريط الإشعار المباشر للعميل المسجل -->
+        <div id="customer-lookup-banner" class="hidden bg-emerald-50 border border-emerald-300 p-2 rounded-xl text-xs flex justify-between items-center text-emerald-900 shadow-sm animate-pulse">
+          <div>
+            <span class="font-black block" id="lookup-name">تم العثور على عميل!</span>
+            <span class="text-[10px] text-emerald-700" id="lookup-address">العنوان...</span>
+          </div>
+          <button type="button" onclick="applyFoundCustomerData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] cursor-pointer">
+            تعبئة البيانات ⚡
+          </button>
         </div>
-        <input type="text" id="order-notes" placeholder="ملاحظات عامة على أوردر التيك أواي..." class="w-full bg-stone-900 border border-amber-500/30 rounded-xl p-2 text-white text-xs focus:outline-none">
+
+        <!-- استمارة بيانات العميل والعنوان -->
+        <div class="space-y-1.5 text-xs">
+          <div class="grid grid-cols-2 gap-1.5">
+            <input type="text" id="cust-phone" oninput="checkCustomerRegistration(this.value)" placeholder="رقم التليفون الرئيسي *" required class="w-full bg-slate-50 border border-amber-300 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500 font-bold">
+            <input type="text" id="cust-name" placeholder="اسم العميل *" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500 font-bold">
+          </div>
+
+          <!-- تفاصيل الدليفري -->
+          <div id="delivery-fields-container" class="hidden space-y-1.5 pt-1">
+            <div class="grid grid-cols-2 gap-1.5">
+              <input type="text" id="cust-phone2" placeholder="رقم تليفون آخر (اختياري)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500">
+              <input type="text" id="cust-landmark" placeholder="علامة مميزة (مثال: بجوار البنك)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500">
+            </div>
+
+            <input type="text" id="cust-address" placeholder="العنوان التفصيلي (الشارع / المنطقة) *" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500 font-bold">
+
+            <div class="grid grid-cols-2 gap-1.5">
+              <input type="text" id="cust-floor" placeholder="الدور (مثال: الدور 3)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500">
+              <input type="text" id="cust-apartment" placeholder="الشقة (مثال: شقة 12)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none focus:border-amber-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5">
+              <input type="number" id="delivery-fee" onchange="renderTakeawayCart()" value="0" placeholder="خدمة التوصيل (ج.م)" class="w-full bg-slate-50 border border-amber-300 rounded-xl p-2 text-slate-800 text-xs focus:outline-none font-bold text-amber-700">
+              <input type="text" id="order-notes" placeholder="ملاحظات الأوردر..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-slate-800 text-xs focus:outline-none">
+            </div>
+          </div>
+
+          <div id="takeaway-notes-only">
+            <input type="text" id="takeaway-notes" placeholder="ملاحظات عامة على طلب التيك أواي..." class="w-full bg-slate-50 border border-amber-300 rounded-xl p-2 text-slate-800 text-xs focus:outline-none">
+          </div>
+        </div>
+
       </div>
 
       <!-- قائمة أصناف السلة -->
-      <div class="flex-1 overflow-y-auto my-2 space-y-2 pr-1" id="cart-items-container">
-        <p class="text-stone-500 text-center py-10 text-xs">اضغط على الأصناف من المنيو لإضافتها للسلة فوراً</p>
+      <div class="flex-1 overflow-y-auto my-1.5 space-y-1.5 pr-1" id="cart-items-container">
+        <p class="text-slate-400 text-center py-6 text-xs">اضغط على الأصناف من المنيو لإضافتها للسلة فوراً</p>
       </div>
 
-      <!-- إجمالي الفاتورة وتأكيد الضرب والطباعة -->
-      <div class="border-t border-stone-800 pt-2 space-y-2">
-        <div class="flex justify-between items-center text-stone-300 text-xs font-bold">
+      <!-- إجمالي الفاتورة وطريقة الدفع -->
+      <div class="border-t border-slate-200 pt-1.5 space-y-1.5">
+        <div class="flex justify-between items-center text-slate-600 text-xs font-bold">
           <span>عدد القطع الإجمالي:</span>
           <span id="total-qty-span">0</span>
         </div>
-        <div class="flex justify-between items-center text-base font-black text-amber-400 border-t border-stone-800/60 pt-1.5">
+        <div class="flex justify-between items-center text-base font-black text-slate-900 border-t border-slate-200 pt-1">
           <span>المبلغ المطلوب (إجمالي):</span>
-          <span id="cart-total-span">0 ج.م</span>
+          <span id="cart-total-span" class="text-amber-600">0 ج.م</span>
         </div>
 
-        <button onclick="submitTakeawayOrder()" class="w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-black py-3 rounded-xl transition shadow-xl flex justify-center items-center gap-2 cursor-pointer text-sm">
-          <i class="fa-solid fa-print"></i> اعتماد وطباعة الأوردر فوري (مطبخ + فاتورة)
+        <!-- اختيار طريقة الدفع -->
+        <div class="grid grid-cols-2 gap-1.5">
+          <button type="button" onclick="setPaymentMethod('cash')" id="pay-cash-btn" class="bg-amber-500 text-slate-950 font-black py-1.5 rounded-xl text-xs transition border border-amber-500 cursor-pointer shadow-sm flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-money-bill-wave"></i> نقدي (كاش)
+          </button>
+          <button type="button" onclick="setPaymentMethod('visa')" id="pay-visa-btn" class="bg-slate-100 text-slate-600 font-bold py-1.5 rounded-xl text-xs transition border border-slate-200 cursor-pointer hover:bg-slate-200 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-credit-card"></i> فيزا (إلكتروني)
+          </button>
+        </div>
+
+        <button onclick="submitTakeawayOrder()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 rounded-xl transition shadow-md flex justify-center items-center gap-2 cursor-pointer text-xs">
+          <i class="fa-solid fa-print text-amber-400"></i> اعتماد وطباعة الأوردر (مطبخ + فاتورة)
         </button>
       </div>
 
@@ -132,76 +196,70 @@
 
   </main>
 
-  <!-- ==================== MODAL 1: نافذة اختيار الملاحظات للصنف (تفتح من السلة) ==================== -->
-  <div id="item-options-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-stone-950 border border-stone-800 rounded-2xl w-full max-w-md p-4 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-stone-800 pb-2">
-        <h3 class="font-black text-sm text-amber-400" id="modal-item-title">إضافة ملاحظات للصنف</h3>
-        <button onclick="closeItemModal()" class="text-stone-400 hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+  <!-- MODAL 1: نافذة الملاحظات للصنف -->
+  <div id="item-options-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-4 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+        <h3 class="font-black text-sm text-slate-900" id="modal-item-title">إضافة ملاحظات للصنف</h3>
+        <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-700 text-base"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- خيارات الملاحظات السريعة -->
       <div class="space-y-2">
-        <label class="text-xs font-bold text-stone-300 block">اختر ملاحظات سريعة:</label>
-        <div class="flex flex-wrap gap-1.5" id="quick-options-container">
-          <!-- خيارات مجهزة تلقائياً -->
-        </div>
+        <label class="text-xs font-bold text-slate-700 block">اختر ملاحظات سريعة:</label>
+        <div class="flex flex-wrap gap-1.5" id="quick-options-container"></div>
       </div>
 
-      <!-- ملاحظة إضافية يدوية -->
       <div>
-        <label class="text-xs font-bold text-stone-400 block mb-1">ملاحظة مخصصة إضافية:</label>
-        <input type="text" id="modal-custom-note" placeholder="مثال: كاتشب خارجي / زيادة تحمير..." class="w-full bg-stone-900 border border-stone-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-amber-500">
+        <label class="text-xs font-bold text-slate-600 block mb-1">ملاحظة مخصصة إضافية:</label>
+        <input type="text" id="modal-custom-note" placeholder="مثال: كاتشب خارجي / زيادة تحمير..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
       </div>
 
-      <!-- أزرار الحفظ -->
-      <div class="flex gap-2 pt-2 border-t border-stone-800">
-        <button onclick="confirmCartItemNote()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-stone-950 font-black py-2.5 rounded-xl text-xs transition cursor-pointer">
+      <div class="flex gap-2 pt-2 border-t border-slate-200">
+        <button onclick="confirmCartItemNote()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition cursor-pointer shadow-sm">
           <i class="fa-solid fa-check"></i> حفظ الملاحظة
         </button>
-        <button onclick="closeItemModal()" class="bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer">
+        <button onclick="closeItemModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer">
           إلغاء
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL 2: نافذة سجل الأوردرات المضروبة اليوم ==================== -->
-  <div id="history-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-stone-950 border border-stone-800 rounded-2xl w-full max-w-4xl p-4 space-y-3 shadow-2xl flex flex-col h-[85vh]">
-      
-      <div class="flex justify-between items-center border-b border-stone-800 pb-2">
-        <h3 class="font-black text-sm text-amber-400 flex items-center gap-2">
-          <i class="fa-solid fa-receipt"></i> سجل أوردرات السفري والتيك أواي المضروبة اليوم
+  <!-- MODAL 2: نافذة سجل اليوم -->
+  <div id="history-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl p-4 space-y-3 shadow-2xl flex flex-col h-[85vh]">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+        <h3 class="font-black text-sm text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-amber-500"></i> سجل أوردرات اليوم (تيك أواي ودليفري)
         </h3>
-        <button onclick="closeHistoryModal()" class="text-stone-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div class="overflow-y-auto flex-1 pr-1">
         <table class="w-full text-right text-xs">
-          <thead class="sticky top-0 bg-stone-950 z-10 border-b border-stone-800">
-            <tr class="text-stone-400 text-[11px]">
+          <thead class="sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
+            <tr class="text-slate-600 text-[11px]">
               <th class="py-2 px-2">رقم الأوردر</th>
-              <th class="py-2 px-2">الوقت</th>
-              <th class="py-2 px-2">العميل</th>
-              <th class="py-2 px-2">الأصناف والملاحظات</th>
+              <th class="py-2 px-2">النوع</th>
+              <th class="py-2 px-2">العميل والهاتف</th>
+              <th class="py-2 px-2">طريقة الدفع</th>
+              <th class="py-2 px-2">الأصناف</th>
               <th class="py-2 px-2">الإجمالي</th>
-              <th class="py-2 px-2 text-center">الإجراءات والتحكم</th>
+              <th class="py-2 px-2 text-center">الإجراءات</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-stone-800/60" id="takeaway-history-table">
-            <tr><td colspan="6" class="text-center py-6 text-stone-500">جاري تحميل السجل...</td></tr>
+          <tbody class="divide-y divide-slate-100" id="takeaway-history-table">
+            <tr><td colspan="7" class="text-center py-6 text-slate-400">جاري تحميل السجل...</td></tr>
           </tbody>
         </table>
       </div>
 
-      <div class="border-t border-stone-800 pt-2 flex justify-between items-center text-xs">
-        <span class="text-stone-400 font-bold" id="modal-today-summary">إجمالي أوردرات اليوم: 0</span>
-        <button onclick="closeHistoryModal()" class="bg-stone-900 hover:bg-stone-800 text-stone-200 font-bold px-4 py-1.5 rounded-xl cursor-pointer">
+      <div class="border-t border-slate-200 pt-2 flex justify-between items-center text-xs">
+        <span class="text-slate-600 font-bold" id="modal-today-summary">إجمالي أوردرات اليوم: 0</span>
+        <button onclick="closeHistoryModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-1.5 rounded-xl cursor-pointer">
           إغلاق النافذة
         </button>
       </div>
-
     </div>
   </div>
 
@@ -213,13 +271,16 @@
     let quickNotesPreset = ["سادة", "بدون تومية", "زيادة تومية", "بدون مخلل", "زيادة مخلل", "سبايسي 🌶️", "بدون خضار", "كاتشب فقط"];
     let takeawayCart = [];
     let todayOrdersListGlobal = [];
+    let registeredCustomersList = [];
+    let foundCustomerTemp = null;
     let currentSelectedCategory = 'all';
+    let selectedOrderType = 'takeaway';
+    let selectedPaymentMethod = 'cash'; 
     
-    // متغيرات الموديل المخصص للملاحظات من السلة
+    let invoiceBarcodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alroknalshami.blogspot.com/'; 
     let editingCartIndex = null;
     let modalSelectedNotes = [];
 
-    // Firebase Init
     const firebaseConfig = {
       apiKey: "AIzaSyC7b09veLZicac60Uuw0Sgb-cL3FtC4",
       authDomain: "alrokn-alshami.firebaseapp.com",
@@ -235,13 +296,114 @@
     window.onload = function() {
       loadMenuAndSettingsFromFirebase();
       initTakeawayOrdersListener();
+      loadRegisteredCustomers();
     };
+
+    function setOrderType(type) {
+      selectedOrderType = type;
+      const takeawayBtn = document.getElementById('type-takeaway-btn');
+      const deliveryBtn = document.getElementById('type-delivery-btn');
+      const deliveryFields = document.getElementById('delivery-fields-container');
+      const takeawayNotesOnly = document.getElementById('takeaway-notes-only');
+
+      if (type === 'delivery') {
+        deliveryBtn.className = "bg-amber-500 text-slate-950 font-black py-1.5 rounded-lg text-xs transition cursor-pointer shadow-sm flex items-center justify-center gap-1";
+        takeawayBtn.className = "bg-transparent text-slate-600 font-bold py-1.5 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1 hover:bg-slate-200";
+        deliveryFields.classList.remove('hidden');
+        takeawayNotesOnly.classList.add('hidden');
+      } else {
+        takeawayBtn.className = "bg-amber-500 text-slate-950 font-black py-1.5 rounded-lg text-xs transition cursor-pointer shadow-sm flex items-center justify-center gap-1";
+        deliveryBtn.className = "bg-transparent text-slate-600 font-bold py-1.5 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1 hover:bg-slate-200";
+        deliveryFields.classList.add('hidden');
+        takeawayNotesOnly.classList.remove('hidden');
+      }
+      renderTakeawayCart();
+    }
+
+    function setPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      const cashBtn = document.getElementById('pay-cash-btn');
+      const visaBtn = document.getElementById('pay-visa-btn');
+
+      if (method === 'cash') {
+        cashBtn.className = "bg-amber-500 text-slate-950 font-black py-1.5 rounded-xl text-xs transition border border-amber-500 cursor-pointer shadow-sm flex items-center justify-center gap-1.5";
+        visaBtn.className = "bg-slate-100 text-slate-600 font-bold py-1.5 rounded-xl text-xs transition border border-slate-200 cursor-pointer hover:bg-slate-200 flex items-center justify-center gap-1.5";
+      } else {
+        visaBtn.className = "bg-purple-600 text-white font-black py-1.5 rounded-xl text-xs transition border border-purple-600 cursor-pointer shadow-sm flex items-center justify-center gap-1.5";
+        cashBtn.className = "bg-slate-100 text-slate-600 font-bold py-1.5 rounded-xl text-xs transition border border-slate-200 cursor-pointer hover:bg-slate-200 flex items-center justify-center gap-1.5";
+      }
+    }
+
+    // جلب قائمة العملاء المسجلين والتحقق منها بجميع العقد المتاحة في قاعدة البيانات
+    function loadRegisteredCustomers() {
+      db.ref('customers').on('value', snapshot => {
+        const data = snapshot.val() || {};
+        registeredCustomersList = Object.values(data);
+      });
+
+      // جلب إضافي من أوردرات سابقة إذا كانت البيانات مخزنة داخل الطلبات
+      db.ref('orders').on('value', snapshot => {
+        const orders = snapshot.val() || {};
+        Object.values(orders).forEach(o => {
+          if (o.customer && o.customer.phone && o.customer.name) {
+            const exists = registeredCustomersList.some(c => c.phone === o.customer.phone);
+            if (!exists) registeredCustomersList.push(o.customer);
+          }
+        });
+      });
+    }
+
+    // بحث قوي ومرن عند إدخال الهاتف
+    function checkCustomerRegistration(phoneVal) {
+      const cleanPhone = phoneVal.replace(/[^0-9]/g, '');
+      const banner = document.getElementById('customer-lookup-banner');
+      
+      if (!cleanPhone || cleanPhone.length < 4) {
+        banner.classList.add('hidden');
+        foundCustomerTemp = null;
+        return;
+      }
+
+      // مطابقة رقم الهاتف (مع مراعاة وجود الصفر أو عدمه)
+      let match = registeredCustomersList.find(c => {
+        if (!c.phone) return false;
+        const p1 = String(c.phone).replace(/[^0-9]/g, '');
+        const p2 = c.phone2 ? String(c.phone2).replace(/[^0-9]/g, '') : '';
+        return p1.endsWith(cleanPhone) || cleanPhone.endsWith(p1) || (p2 && (p2.endsWith(cleanPhone) || cleanPhone.endsWith(p2)));
+      });
+
+      if (match) {
+        foundCustomerTemp = match;
+        document.getElementById('lookup-name').innerText = `👤 عميل مسجل: ${match.name}`;
+        document.getElementById('lookup-address').innerText = `📍 العنوان: ${match.address || 'بدون عنوان'} ${match.floor ? `(دور ${match.floor})` : ''}`;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+        foundCustomerTemp = null;
+      }
+    }
+
+    function applyFoundCustomerData() {
+      if (!foundCustomerTemp) return;
+      document.getElementById('cust-name').value = foundCustomerTemp.name || '';
+      document.getElementById('cust-phone').value = foundCustomerTemp.phone || document.getElementById('cust-phone').value;
+      document.getElementById('cust-address').value = foundCustomerTemp.address || '';
+      document.getElementById('cust-phone2').value = foundCustomerTemp.phone2 || '';
+      document.getElementById('cust-landmark').value = foundCustomerTemp.landmark || '';
+      document.getElementById('cust-floor').value = foundCustomerTemp.floor || '';
+      document.getElementById('cust-apartment').value = foundCustomerTemp.apartment || '';
+
+      if (foundCustomerTemp.address) setOrderType('delivery');
+      document.getElementById('customer-lookup-banner').classList.add('hidden');
+    }
 
     function loadMenuAndSettingsFromFirebase() {
       db.ref('settings/quickNotes').on('value', snapshot => {
-        if (snapshot.exists()) {
-          quickNotesPreset = snapshot.val();
-        }
+        if (snapshot.exists()) quickNotesPreset = snapshot.val();
+      });
+
+      db.ref('settings/invoiceBarcode').on('value', snapshot => {
+        if (snapshot.exists()) invoiceBarcodeUrl = snapshot.val();
       });
 
       db.ref('menuItems').on('value', snapshot => {
@@ -264,11 +426,11 @@
       container.innerHTML = categories.map(cat => {
         const isActive = currentSelectedCategory === cat;
         const btnClass = isActive 
-          ? "bg-amber-500 text-stone-950 font-black" 
-          : "bg-stone-900 text-stone-300 font-bold hover:bg-stone-800";
+          ? "w-full text-right bg-amber-500 text-slate-950 font-black px-3.5 py-2.5 rounded-xl text-xs transition shadow-sm" 
+          : "w-full text-right bg-slate-50 text-slate-700 font-bold hover:bg-slate-100 px-3.5 py-2.5 rounded-xl text-xs transition border border-slate-200/60";
         return `
-          <button class="menu-cat-btn ${btnClass} px-3.5 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer" onclick="filterMenuCategory('${cat}')">
-            ${cat === 'all' ? 'الكل' : cat}
+          <button class="menu-cat-btn ${btnClass} cursor-pointer" onclick="filterMenuCategory('${cat}')">
+            ${cat === 'all' ? '📁 الكل' : '🍽️ ' + cat}
           </button>
         `;
       }).join('');
@@ -276,68 +438,62 @@
 
     function filterMenuCategory(category) {
       currentSelectedCategory = category;
-      const grid = document.getElementById('menu-grid');
-      
-      document.querySelectorAll('.menu-cat-btn').forEach(btn => {
-        if (btn.innerText.trim() === (category === 'all' ? 'الكل' : category)) {
-          btn.className = "menu-cat-btn bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer";
-        } else {
-          btn.className = "menu-cat-btn bg-stone-900 text-stone-300 font-bold hover:bg-stone-800 px-3.5 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer";
-        }
-      });
+      buildCategoryTabs();
+      renderFilteredGrid();
+    }
 
-      const filtered = category === 'all' ? fullMenuArray : fullMenuArray.filter(item => item.category === category);
+    function filterMenuItemsSearch() {
+      renderFilteredGrid();
+    }
+
+    function renderFilteredGrid() {
+      const grid = document.getElementById('menu-grid');
+      const searchQuery = document.getElementById('menu-search-input').value.toLowerCase().trim();
+
+      let filtered = currentSelectedCategory === 'all' 
+        ? fullMenuArray 
+        : fullMenuArray.filter(item => item.category === currentSelectedCategory);
+
+      if (searchQuery) {
+        filtered = filtered.filter(item => item.name.toLowerCase().includes(searchQuery));
+      }
       
       if (filtered.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-stone-500 text-xs py-10">لا توجد أصناف في هذا القسم حالياً.</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-400 text-xs py-10">لا توجد أصناف مطابقة.</p>`;
         return;
       }
 
       grid.innerHTML = filtered.map(item => `
-        <div class="bg-stone-900 border border-stone-800 hover:border-amber-500/50 rounded-2xl p-2 flex flex-col justify-between space-y-1.5 transition shadow">
-          <img src="${item.img || 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300'}" alt="${item.name}" class="w-full h-16 object-cover rounded-xl">
+        <div class="bg-slate-50 border border-slate-200 hover:border-amber-400 rounded-2xl p-2 flex flex-col justify-between space-y-1.5 transition shadow-sm">
+          <img src="${item.img || 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300'}" alt="${item.name}" class="w-full h-16 object-cover rounded-xl border border-slate-200">
           <div>
-            <h5 class="font-bold text-xs text-white leading-tight">${item.name}</h5>
-            <span class="text-amber-400 font-black text-xs block mt-0.5">${item.price} ج.م</span>
+            <h5 class="font-bold text-xs text-slate-900 leading-tight">${item.name}</h5>
+            <span class="text-amber-600 font-black text-xs block mt-0.5">${item.price} ج.م</span>
           </div>
-          <!-- الضغط هنا يضيف الصنف مباشرة للسلة -->
-          <button onclick='addDirectToCart(${JSON.stringify(item)})' class="w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-extrabold text-xs py-1.5 rounded-xl transition flex justify-center items-center gap-1 cursor-pointer">
+          <button onclick='addDirectToCart(${JSON.stringify(item)})' class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs py-1.5 rounded-xl transition flex justify-center items-center gap-1 cursor-pointer shadow-sm">
             <i class="fa-solid fa-plus"></i> إضافة للسلة
           </button>
         </div>
       `).join('');
     }
 
-    // الإضافة المباشرة للسلة عند النقر من المنيو
     function addDirectToCart(item) {
       const existingIndex = takeawayCart.findIndex(c => c.name === item.name && (!c.notes || c.notes === ''));
       if (existingIndex > -1) {
         takeawayCart[existingIndex].qty += 1;
       } else {
-        takeawayCart.push({
-          name: item.name,
-          price: item.price,
-          qty: 1,
-          notes: ''
-        });
+        takeawayCart.push({ name: item.name, price: item.price, qty: 1, notes: '' });
       }
       renderTakeawayCart();
     }
 
-    // فتح نافذة اختيار الملاحظات عند النقر على زر الملاحظة في السلة
     function openCartItemNoteModal(index) {
       editingCartIndex = index;
       const currentItem = takeawayCart[index];
-      
       document.getElementById('modal-item-title').innerText = `ملاحظات الصنف: ${currentItem.name}`;
-      
-      // تفريغ أو استرجاع الملاحظات السابقة إن وجدت
       modalSelectedNotes = currentItem.notes ? currentItem.notes.split('، ').filter(n => quickNotesPreset.includes(n)) : [];
-      
-      // الملاحظة المخصصة غير المدرجة في القرست
       let otherNotes = currentItem.notes ? currentItem.notes.split('، ').filter(n => !quickNotesPreset.includes(n)).join('، ') : '';
       document.getElementById('modal-custom-note').value = otherNotes;
-
       renderQuickOptions();
       document.getElementById('item-options-modal').classList.remove('hidden');
     }
@@ -352,8 +508,8 @@
       container.innerHTML = quickNotesPreset.map(note => {
         const isSelected = modalSelectedNotes.includes(note);
         const btnClass = isSelected 
-          ? "bg-amber-500 text-stone-950 border-amber-500 font-black" 
-          : "bg-stone-900 text-stone-300 border-stone-800 font-bold hover:border-amber-500/50";
+          ? "bg-amber-500 text-slate-950 border-amber-500 font-black" 
+          : "bg-slate-50 text-slate-700 border-slate-200 font-bold hover:border-amber-400";
         return `
           <button type="button" onclick="toggleQuickNote('${note}')" class="${btnClass} border text-[11px] px-2.5 py-1 rounded-lg transition cursor-pointer">
             ${note}
@@ -364,21 +520,16 @@
 
     function toggleQuickNote(note) {
       const idx = modalSelectedNotes.indexOf(note);
-      if (idx > -1) {
-        modalSelectedNotes.splice(idx, 1);
-      } else {
-        modalSelectedNotes.push(note);
-      }
+      if (idx > -1) modalSelectedNotes.splice(idx, 1);
+      else modalSelectedNotes.push(note);
       renderQuickOptions();
     }
 
     function confirmCartItemNote() {
       if (editingCartIndex === null || !takeawayCart[editingCartIndex]) return;
-
       const customNote = document.getElementById('modal-custom-note').value.trim();
       let combinedNotesList = [...modalSelectedNotes];
       if (customNote) combinedNotesList.push(customNote);
-
       takeawayCart[editingCartIndex].notes = combinedNotesList.join('، ');
       renderTakeawayCart();
       closeItemModal();
@@ -387,21 +538,15 @@
     function updateCartQty(index, change) {
       if (takeawayCart[index]) {
         takeawayCart[index].qty += change;
-        if (takeawayCart[index].qty <= 0) {
-          takeawayCart.splice(index, 1);
-        }
+        if (takeawayCart[index].qty <= 0) takeawayCart.splice(index, 1);
       }
       renderTakeawayCart();
     }
 
     function setCartItemQtyDirect(index, val) {
       let newQty = parseInt(val);
-      if (isNaN(newQty) || newQty <= 0) {
-        newQty = 1;
-      }
-      if (takeawayCart[index]) {
-        takeawayCart[index].qty = newQty;
-      }
+      if (isNaN(newQty) || newQty <= 0) newQty = 1;
+      if (takeawayCart[index]) takeawayCart[index].qty = newQty;
       renderTakeawayCart();
     }
 
@@ -412,7 +557,7 @@
       const cartTotalSpan = document.getElementById('cart-total-span');
 
       if (takeawayCart.length === 0) {
-        container.innerHTML = `<p class="text-stone-500 text-center py-10 text-xs">اضغط على الأصناف من المنيو لإضافتها للسلة فوراً</p>`;
+        container.innerHTML = `<p class="text-slate-400 text-center py-6 text-xs">اضغط على الأصناف من المنيو لإضافتها للسلة فوراً</p>`;
         countBadge.innerText = `0 صنف`;
         totalQtySpan.innerText = `0`;
         cartTotalSpan.innerText = `0 ج.م`;
@@ -428,33 +573,37 @@
         totalQty += item.qty;
 
         return `
-          <div class="bg-stone-900 p-2.5 rounded-xl border border-stone-800 space-y-2">
+          <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-1.5">
             <div class="flex justify-between items-center">
-              <span class="font-bold text-stone-200 text-xs">${item.name}</span>
-              <span class="text-amber-400 font-black text-xs">${itemTotal} ج.م</span>
+              <span class="font-bold text-slate-800 text-xs">${item.name}</span>
+              <span class="text-amber-600 font-black text-xs">${itemTotal} ج.م</span>
             </div>
 
             <div class="flex justify-between items-center gap-2">
               <div class="flex items-center gap-1">
-                <button onclick="updateCartQty(${index}, -1)" class="w-6 h-6 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700 flex items-center justify-center cursor-pointer">-</button>
-                <input type="number" min="1" value="${item.qty}" onchange="setCartItemQtyDirect(${index}, this.value)" class="w-12 bg-stone-950 border border-stone-800 text-amber-400 font-black text-center text-xs rounded py-0.5 focus:outline-none focus:border-amber-500">
-                <button onclick="updateCartQty(${index}, 1)" class="w-6 h-6 bg-stone-800 text-stone-300 rounded font-bold hover:bg-stone-700 flex items-center justify-center cursor-pointer">+</button>
+                <button onclick="updateCartQty(${index}, -1)" class="w-5 h-5 bg-slate-200 text-slate-700 rounded font-bold hover:bg-slate-300 flex items-center justify-center cursor-pointer">-</button>
+                <input type="number" min="1" value="${item.qty}" onchange="setCartItemQtyDirect(${index}, this.value)" class="w-10 bg-white border border-slate-200 text-amber-600 font-black text-center text-xs rounded py-0.5 focus:outline-none focus:border-amber-500">
+                <button onclick="updateCartQty(${index}, 1)" class="w-5 h-5 bg-slate-200 text-slate-700 rounded font-bold hover:bg-slate-300 flex items-center justify-center cursor-pointer">+</button>
               </div>
 
-              <!-- زر الملاحظة يفتح الموديل لاختيار (بدون تومية، سادة...) -->
-              <button onclick="openCartItemNoteModal(${index})" class="bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer">
+              <button onclick="openCartItemNoteModal(${index})" class="bg-slate-200/70 hover:bg-slate-200 text-amber-700 border border-slate-300 px-2 py-0.5 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square"></i> ${item.notes ? 'تعديل الملاحظة' : 'إضافة ملاحظة'}
               </button>
             </div>
 
-            ${item.notes ? `<div class="text-[10px] text-amber-400 bg-amber-950/40 border border-amber-800/40 px-2 py-1 rounded font-bold">⚠️ ملاحظة: ${item.notes}</div>` : ''}
+            ${item.notes ? `<div class="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-bold">⚠️ ملاحظة: ${item.notes}</div>` : ''}
           </div>
         `;
       }).join('');
 
+      let deliveryFee = 0;
+      if (selectedOrderType === 'delivery') {
+        deliveryFee = parseFloat(document.getElementById('delivery-fee').value) || 0;
+      }
+
       countBadge.innerText = `${takeawayCart.length} صنف`;
       totalQtySpan.innerText = totalQty;
-      cartTotalSpan.innerText = `${grandTotal} ج.م`;
+      cartTotalSpan.innerText = `${grandTotal + deliveryFee} ج.م`;
     }
 
     function initTakeawayOrdersListener() {
@@ -464,14 +613,13 @@
 
         todayOrdersListGlobal = Object.entries(orders).filter(([key, o]) => {
           const orderDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '');
-          const isTakeaway = (o.orderType === 'takeaway' || o.orderType === 'سفري' || o.orderType === 'تك أواي');
-          return isTakeaway && orderDate === today;
+          return orderDate === today;
         });
 
         todayOrdersListGlobal.sort((a, b) => new Date(a[1].createdAt) - new Date(b[1].createdAt));
 
         const nextSeq = todayOrdersListGlobal.length + 1;
-        document.getElementById('next-order-num').innerText = `#TA-${nextSeq}`;
+        document.getElementById('next-order-num').innerText = `#${nextSeq}`;
         document.getElementById('header-today-count').innerText = todayOrdersListGlobal.length;
         document.getElementById('modal-today-summary').innerText = `إجمالي أوردرات اليوم: ${todayOrdersListGlobal.length} أوردر`;
 
@@ -479,13 +627,8 @@
       });
     }
 
-    function openHistoryModal() {
-      document.getElementById('history-modal').classList.remove('hidden');
-    }
-
-    function closeHistoryModal() {
-      document.getElementById('history-modal').classList.add('hidden');
-    }
+    function openHistoryModal() { document.getElementById('history-modal').classList.remove('hidden'); }
+    function closeHistoryModal() { document.getElementById('history-modal').classList.add('hidden'); }
 
     function submitTakeawayOrder() {
       if (takeawayCart.length === 0) {
@@ -495,41 +638,87 @@
 
       const custName = document.getElementById('cust-name').value.trim() || 'عميل سفري';
       const custPhone = document.getElementById('cust-phone').value.trim() || '';
-      const orderNotes = document.getElementById('order-notes').value.trim() || '';
+
+      let custAddress = '', custPhone2 = '', custLandmark = '', custFloor = '', custApartment = '', deliveryFee = 0, notes = '';
+      
+      if (selectedOrderType === 'delivery') {
+        custAddress = document.getElementById('cust-address').value.trim();
+        if (!custPhone || !custAddress) {
+          alert("يرجى إدخال رقم الهاتف والعنوان التفصيلي لأوردر الدليفري!");
+          return;
+        }
+        custPhone2 = document.getElementById('cust-phone2').value.trim();
+        custLandmark = document.getElementById('cust-landmark').value.trim();
+        custFloor = document.getElementById('cust-floor').value.trim();
+        custApartment = document.getElementById('cust-apartment').value.trim();
+        deliveryFee = parseFloat(document.getElementById('delivery-fee').value) || 0;
+        notes = document.getElementById('order-notes').value.trim();
+
+        saveCustomerToDatabase({
+          name: custName,
+          phone: custPhone,
+          phone2: custPhone2,
+          address: custAddress,
+          landmark: custLandmark,
+          floor: custFloor,
+          apartment: custApartment
+        });
+
+      } else {
+        notes = document.getElementById('takeaway-notes').value.trim();
+      }
 
       const subtotal = takeawayCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
       const createdAt = new Date().toISOString();
       const nextSeq = todayOrdersListGlobal.length + 1;
-      const orderId = `TA-${nextSeq}`;
+      const orderPrefix = selectedOrderType === 'delivery' ? 'DEL' : 'TA';
+      const orderId = `${orderPrefix}-${nextSeq}`;
 
       const newOrderData = {
         orderId: orderId,
-        orderType: 'takeaway',
+        orderType: selectedOrderType,
+        paymentMethod: selectedPaymentMethod,
         status: 'قيد التحضير',
         createdAt: createdAt,
         date: createdAt.split('T')[0],
-        customer: { name: custName, phone: custPhone },
+        customer: { 
+          name: custName, 
+          phone: custPhone,
+          phone2: custPhone2,
+          address: custAddress,
+          landmark: custLandmark,
+          floor: custFloor,
+          apartment: custApartment
+        },
         phone: custPhone,
-        notes: orderNotes,
+        notes: notes,
         items: takeawayCart.map(i => ({ name: i.name, price: i.price, qty: i.qty, notes: i.notes || '' })),
         subtotal: subtotal,
-        deliveryFee: 0,
-        total: subtotal
+        deliveryFee: deliveryFee,
+        total: subtotal + deliveryFee
       };
 
       const newRef = db.ref('orders').push();
       newRef.set(newOrderData, (err) => {
         if (!err) {
           printKitchenTicketData(newOrderData, () => {
-            setTimeout(() => {
-              printReceiptData(newOrderData);
-            }, 700);
+            setTimeout(() => { printReceiptData(newOrderData); }, 800);
           });
 
           takeawayCart = [];
           document.getElementById('cust-name').value = '';
           document.getElementById('cust-phone').value = '';
-          document.getElementById('order-notes').value = '';
+          if (selectedOrderType === 'delivery') {
+            document.getElementById('cust-address').value = '';
+            document.getElementById('cust-phone2').value = '';
+            document.getElementById('cust-landmark').value = '';
+            document.getElementById('cust-floor').value = '';
+            document.getElementById('cust-apartment').value = '';
+            document.getElementById('delivery-fee').value = '0';
+            document.getElementById('order-notes').value = '';
+          } else {
+            document.getElementById('takeaway-notes').value = '';
+          }
           renderTakeawayCart();
         } else {
           alert("حدث خطأ أثناء ضرب الأوردر.");
@@ -537,10 +726,16 @@
       });
     }
 
+    function saveCustomerToDatabase(custData) {
+      if (!custData.phone) return;
+      const cleanKey = custData.phone.replace(/[^0-9]/g, '');
+      db.ref('customers/' + cleanKey).set(custData);
+    }
+
     function renderTakeawayHistoryTable(entries) {
       const tbody = document.getElementById('takeaway-history-table');
       if (entries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-stone-500">لا توجد أوردرات سفري مضروبة اليوم حتى الآن.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">لا توجد أوردرات مضروبة اليوم حتى الآن.</td></tr>`;
         return;
       }
 
@@ -548,27 +743,39 @@
         const orderId = o.orderId || key.slice(-5);
         const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
         const itemsSummary = (o.items || []).map(i => `${i.qty}x ${i.name} ${i.notes ? `(${i.notes})` : ''}`).join('، ');
-        const custName = o.customer ? o.customer.name : (o.name || 'سفري');
+        const custName = o.customer ? o.customer.name : (o.name || 'عميل');
+        const custPhone = o.customer ? o.customer.phone : '';
+        const isDelivery = o.orderType === 'delivery';
+        const isVisa = o.paymentMethod === 'visa';
 
         return `
-          <tr class="hover:bg-stone-900/60 border-b border-stone-800/40">
-            <td class="py-2.5 px-2 font-black text-amber-400">#${orderId}</td>
-            <td class="py-2.5 px-2 text-stone-400 text-[11px]">${timeStr}</td>
-            <td class="py-2.5 px-2 text-stone-200 font-bold">${custName}</td>
-            <td class="py-2.5 px-2 text-stone-300 text-[11px] max-w-xs truncate">${itemsSummary}</td>
-            <td class="py-2.5 px-2 font-black text-emerald-400">${o.total || 0} ج.م</td>
+          <tr class="hover:bg-slate-50 border-b border-slate-100">
+            <td class="py-2.5 px-2 font-black text-amber-600">#${orderId}</td>
+            <td class="py-2.5 px-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${isDelivery ? 'bg-blue-100 text-blue-700 border border-blue-300' : 'bg-slate-100 text-slate-700 border border-slate-300'}">
+                ${isDelivery ? '🛵 توصيل' : '🛍️ تيك أواي'}
+              </span>
+            </td>
+            <td class="py-2.5 px-2 text-slate-800 font-bold">
+              ${custName}
+              ${custPhone ? `<span class="block text-[10px] text-slate-500 font-normal">${custPhone}</span>` : ''}
+            </td>
+            <td class="py-2.5 px-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${isVisa ? 'bg-purple-100 text-purple-700 border border-purple-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+                ${isVisa ? '💳 فيزا' : '💵 نقدي'}
+              </span>
+            </td>
+            <td class="py-2.5 px-2 text-slate-600 text-[11px] max-w-xs truncate">${itemsSummary}</td>
+            <td class="py-2.5 px-2 font-black text-emerald-600">${o.total || 0} ج.م</td>
             <td class="py-2.5 px-2">
               <div class="flex items-center justify-center gap-1.5">
-                <button onclick="reprintOrderDirect('${key}', 'kitchen')" class="bg-blue-900/60 hover:bg-blue-800 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
+                <button onclick="reprintOrderDirect('${key}', 'kitchen')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
                   <i class="fa-solid fa-utensils"></i> مطبخ
                 </button>
-                <button onclick="reprintOrderDirect('${key}', 'receipt')" class="bg-amber-900/60 hover:bg-amber-800 text-amber-300 border border-amber-700/50 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
+                <button onclick="reprintOrderDirect('${key}', 'receipt')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
                   <i class="fa-solid fa-print"></i> فاتورة
                 </button>
-                <button onclick="editTakeawayOrder('${key}')" class="bg-stone-800 hover:bg-stone-700 text-amber-400 border border-stone-700 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
-                  تعديل
-                </button>
-                <button onclick="deleteTakeawayOrder('${key}')" class="bg-red-950 hover:bg-red-800 text-red-300 border border-red-800 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
+                <button onclick="deleteTakeawayOrder('${key}')" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer">
                   حذف
                 </button>
               </div>
@@ -584,29 +791,12 @@
       }
     }
 
-    function editTakeawayOrder(key) {
-      db.ref('orders/' + key).once('value', (snapshot) => {
-        const order = snapshot.val();
-        if (!order) return;
-
-        const newNotes = prompt("تعديل ملاحظات الأوردر:", order.notes || '');
-        if (newNotes !== null) {
-          db.ref('orders/' + key).update({ notes: newNotes.trim() });
-          alert("تم تعديل ملاحظات الأوردر بنجاح!");
-        }
-      });
-    }
-
     function reprintOrderDirect(key, type) {
       db.ref('orders/' + key).once('value', (snapshot) => {
         const order = snapshot.val();
         if (!order) return;
-
-        if (type === 'kitchen') {
-          printKitchenTicketData(order);
-        } else {
-          printReceiptData(order);
-        }
+        if (type === 'kitchen') printKitchenTicketData(order);
+        else printReceiptData(order);
       });
     }
 
@@ -614,10 +804,11 @@
       const printArea = document.getElementById('print-area');
       const orderId = order.orderId || 'TA';
       const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+      const orderTypeTitle = order.orderType === 'delivery' ? 'بون مطبخ - دليفري 🛵' : 'بون مطبخ - تيك أواي 🛍️';
 
       printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
-          <h2 style="font-size: 22px; font-weight: 900; margin: 0; background: #000; color: #fff; padding: 4px 0;">بون مطبخ - سفري 🛍️</h2>
+          <h2 style="font-size: 22px; font-weight: 900; margin: 0; background: #000; color: #fff; padding: 4px 0;">${orderTypeTitle}</h2>
           <p style="font-size: 20px; font-weight: 900; margin: 6px 0;">رقم الأوردر: #${orderId}</p>
           <p style="font-size: 13px; font-weight: bold;">الوقت: ${timeStr}</p>
           ${order.notes ? `<p style="font-size: 14px; font-weight: 900; background: #eee; border: 1px solid #000; padding: 4px; margin-top: 4px;">ملاحظات عامة: ${order.notes}</p>` : ''}
@@ -655,16 +846,32 @@
       const printArea = document.getElementById('print-area');
       const orderId = order.orderId || 'TA';
       const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : '';
+      const paymentText = order.paymentMethod === 'visa' ? '💳 دفع إلكتروني (فيزا)' : '💵 دفع نقدي (كاش)';
+      const isDelivery = order.orderType === 'delivery';
+
+      const cust = order.customer || {};
 
       printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;">
           <h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2>
-          <p style="font-size: 12px; font-weight: bold; margin: 2px 0;">فاتورة سفري / تيك أواي 🛍️</p>
+          <p style="font-size: 12px; font-weight: bold; margin: 2px 0;">${isDelivery ? 'فاتورة توصيل - دليفري 🛵' : 'فاتورة سفري / تيك أواي 🛍️'}</p>
           <div style="font-size: 18px; font-weight: 900; margin-top: 4px; border: 2px solid #000; padding: 4px 0; background: #eee;">
             طلب #${orderId}
           </div>
-          <p style="font-size: 11px; margin-top: 4px;">${timeStr}</p>
+          <p style="font-size: 11px; margin-top: 4px;">طريقة الدفع: <strong>${paymentText}</strong></p>
+          <p style="font-size: 10px; margin-top: 2px;">${timeStr}</p>
         </div>
+
+        ${isDelivery ? `
+          <div style="border: 2px solid #000; padding: 6px; margin-bottom: 8px; font-size: 12px; line-height: 1.4;">
+            <p style="margin: 0; font-weight: 900;">العميل: ${cust.name || 'عميل'}</p>
+            <p style="margin: 0; font-weight: 900;">الهاتف: ${cust.phone || '-'} ${cust.phone2 ? ` / ${cust.phone2}` : ''}</p>
+            <p style="margin: 2px 0 0 0; font-weight: 900;">العنوان: ${cust.address || '-'}</p>
+            ${cust.floor || cust.apartment ? `<p style="margin: 0;">الدور: ${cust.floor || '-'} | الشقة: ${cust.apartment || '-'}</p>` : ''}
+            ${cust.landmark ? `<p style="margin: 0; font-weight: bold;">علامة مميزة: ${cust.landmark}</p>` : ''}
+          </div>
+        ` : ''}
+
         <table style="width: 100%; text-align: right; font-size: 13px; border-collapse: collapse; font-weight: 800; border-bottom: 2px dashed #000;">
           <thead>
             <tr style="border-bottom: 2px solid #000;">
@@ -686,21 +893,55 @@
             `).join('')}
           </tbody>
         </table>
-        <div style="font-size: 16px; font-weight: 900; display: flex; justify-content: space-between; margin-top: 8px; border-bottom: 3px solid #000; padding-bottom: 6px;">
+
+        ${order.deliveryFee ? `
+          <div style="font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 4px;">
+            <span>خدمة التوصيل:</span>
+            <span>${order.deliveryFee} ج.م</span>
+          </div>
+        ` : ''}
+
+        <div style="font-size: 16px; font-weight: 900; display: flex; justify-content: space-between; margin-top: 6px; border-top: 2px solid #000; border-bottom: 3px solid #000; padding: 4px 0;">
           <span>الإجمالي الكلي:</span>
           <span>${order.total || 0} ج.م</span>
         </div>
-        <div style="text-align: center; font-size: 11px; font-weight: 900; margin-top: 8px;">
+        
+        ${invoiceBarcodeUrl ? `
+          <div style="text-align: center; margin-top: 10px; padding-top: 6px;">
+            <img id="receipt-barcode-img" src="${invoiceBarcodeUrl}" alt="Barcode" style="width: 110px; height: 110px; object-fit: contain; margin: 0 auto; display: block;" />
+          </div>
+        ` : ''}
+
+        <div style="text-align: center; font-size: 11px; font-weight: 900; margin-top: 6px;">
           <p>شكراً لطلبكم من الركن الشامي ❤️</p>
         </div>
       `;
 
       printArea.classList.remove('hidden');
-      setTimeout(() => {
-        window.print();
-        printArea.classList.add('hidden');
-        if (callback) callback();
-      }, 150);
+
+      const barcodeImg = document.getElementById('receipt-barcode-img');
+      if (barcodeImg) {
+        barcodeImg.onload = function() {
+          setTimeout(() => {
+            window.print();
+            printArea.classList.add('hidden');
+            if (callback) callback();
+          }, 200);
+        };
+        barcodeImg.onerror = function() {
+          setTimeout(() => {
+            window.print();
+            printArea.classList.add('hidden');
+            if (callback) callback();
+          }, 200);
+        };
+      } else {
+        setTimeout(() => {
+          window.print();
+          printArea.classList.add('hidden');
+          if (callback) callback();
+        }, 250);
+      }
     }
   </script>
 </body>
