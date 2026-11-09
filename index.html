@@ -16,6 +16,8 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <!-- QRCode.js Library for generating real QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     body, input, select, button, h1, h2, h3, h4, p, span, div, textarea {
@@ -50,7 +52,8 @@
 </head>
 <body class="bg-stone-100 text-stone-800 min-h-screen pb-12 selection:bg-amber-400 selection:text-black">
 
-  <audio id="order-alert-sound" loop preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+  <!-- نغمة صوت أعلى وواضحة للأوردر الجديد -->
+  <audio id="order-alert-sound" loop preload="auto" src="https://notificationsounds.com/storage/sounds/file-sounds-1222-did-it.mp3"></audio>
   <audio id="delivered-alert-sound" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
   <!-- الهيدر الرئيسي -->
@@ -344,7 +347,7 @@
   <div class="hidden bg-white text-black font-sans text-xs p-2 dir-rtl" id="print-area"></div>
 
   <script>
-    // القائمة الأساسية الشاملة للأقسام والأصناف
+    // القائمة الأساسية الشاملة للأقسام والأصناف (المربوطة بقاعدة البيانات)
     const mainRestaurantMenu = [
       { id: 1, name: "عرض الطلبة", price: 35, category: "عروض الركن الشامي" },
       { id: 2, name: "عرض 3 شاورما وسط", price: 135, category: "عروض الركن الشامي" },
@@ -675,15 +678,24 @@
       });
       const printArea = document.getElementById('print-area');
       let html = `<div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px;"><h2 style="font-size: 20px; font-weight: 900; margin: 0;">مطعم الركن الشامي</h2><p style="font-size: 14px; font-weight: 900; margin: 4px 0;">تقرير الأصناف المباعة حسب الأقسام 📊</p><p style="font-size: 11px; font-weight: bold;">التاريخ: ${selectedDate} | إجمالي القطع: ${totalQtyAll}</p></div>`;
+      
       Object.entries(categorySummary).forEach(([catName, itemsObj]) => {
         let catTotalQty = 0; let catTotalSum = 0;
-        html += `<div style="margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 6px;"><h4 style="font-size: 14px; font-weight: 900; margin: 0 0 4px 0;">${catName}</h4><table style="width: 100%; text-align: right; font-size: 12px; border-collapse: collapse; font-weight: 800;"><thead><tr style="border-bottom: 1px solid #000;"><th style="padding-bottom:2px;">الصنف</th><th style="text-align:center; padding-bottom:2px;">العدد</th><th style="text-align:left; padding-bottom:2px;">القيمة</th></tr></thead><tbody>`;
+        html += `<div style="margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 6px;">`;
+        html += `<h4 style="font-size: 14px; font-weight: 900; margin: 0 0 4px 0; background: #eee; padding: 2px;">${catName}</h4>`;
+        html += `<table style="width: 100%; text-align: right; font-size: 12px; border-collapse: collapse; font-weight: 800;">`;
+        html += `<thead><tr style="border-bottom: 1px solid #000;"><th style="padding-bottom:2px;">الصنف</th><th style="text-align:center; padding-bottom:2px;">العدد</th><th style="text-align:left; padding-bottom:2px;">القيمة</th></tr></thead><tbody>`;
+        
         Object.entries(itemsObj).forEach(([itemName, data]) => {
           catTotalQty += data.qty; catTotalSum += data.totalAmount;
           html += `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding:2px 0;">${itemName}</td><td style="text-align:center; padding:2px 0;">${data.qty}</td><td style="text-align:left; padding:2px 0;">${data.totalAmount}</td></tr>`;
         });
-        html += `</tbody></table><div style="font-size: 12px; font-weight: 900; text-align: left; margin-top: 4px;">إجمالي القسم: ${catTotalQty} قطعة | ${catTotalSum} ج.م</div></div>`;
+        
+        html += `</tbody></table>`;
+        html += `<div style="font-size: 12px; font-weight: 900; text-align: left; margin-top: 4px;">إجمالي القسم: ${catTotalQty} قطعة | ${catTotalSum} ج.م</div>`;
+        html += `</div>`;
       });
+
       printArea.innerHTML = html;
       printArea.classList.remove('hidden');
       setTimeout(() => { window.print(); printArea.classList.add('hidden'); }, 150);
@@ -841,7 +853,6 @@
     function createOrderCardHTML(key, order) {
       const status = order.status || 'جديد';
       
-      // معالجة آمنة لبيانات العميل لمنع أي undefined
       let custName = 'عميل';
       let custPhone = '';
       let custPhone2 = '';
@@ -935,11 +946,11 @@
                 ${custPhone ? `<a href="https://wa.me/${custPhone.replace(/\D/g, '')}" target="_blank" class="text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[10px] font-bold"><i class="fa-brands fa-whatsapp"></i> واتساب</a>` : ''}
               </div>
               ${custPhone ? `<p class="flex items-center gap-1.5"><i class="fa-solid fa-phone text-amber-600 text-[10px]"></i> <a href="tel:${custPhone}" class="text-amber-700 dir-ltr inline-block font-mono font-bold">${custPhone}</a></p>` : ''}
-              ${custPhone2 ? `<p class="flex items-center gap-1.5 text-[11px] text-stone-500"><i class="fa-solid fa-phone-flip text-stone-400"></i> إضافي: <a href="tel:${custPhone2}" class="text-stone-700 dir-ltr font-mono">${custPhone2}</a></p>` : ''}
+              ${custPhone2 ? `<p class="flex items-center gap-1.5 text-[11px] text-stone-500"><i class="fa-solid fa-phone-flip text-stone-400"></i> هاتف ثاني: <a href="tel:${custPhone2}" class="text-stone-700 dir-ltr font-mono font-bold">${custPhone2}</a></p>` : ''}
               ${orderType === 'dinein' ? `<p class="text-amber-700 font-bold"><i class="fa-solid fa-utensils"></i> رقم الطاولة: ${order.tableNo || '1'}</p>` : ''}
               ${orderType === 'توصيل' || orderType === 'delivery' ? `
                 <p class="flex items-start gap-1.5 text-[11px] text-stone-700"><i class="fa-solid fa-location-dot text-amber-600 mt-0.5"></i> ${custAddress || 'العنوان غير مدخل'}</p>
-                ${landmark ? `<p class="text-amber-700 text-[11px] font-bold"><i class="fa-solid fa-map-pin"></i> علامة: ${landmark}</p>` : ''}
+                ${landmark ? `<p class="text-amber-700 text-[11px] font-bold"><i class="fa-solid fa-map-pin"></i> علامة مميزة: ${landmark}</p>` : ''}
                 <div class="flex gap-3 text-[11px] text-amber-700 font-bold pt-1 border-t border-stone-200 mt-1">
                   <span>الدور: ${custFloor || 'غير محدد'}</span>
                   <span>الشقة: ${custApt || 'غير محدد'}</span>
@@ -1066,9 +1077,15 @@
     function printSingleReceipt(key, callback) {
       const order = rawOrdersData[key];
       if (!order) { if (callback) callback(); return; }
+      
       const custName = order.customer ? (order.customer.name || order.name || 'عميل') : (order.name || 'عميل');
       const custPhone = order.customer ? (order.customer.phone || order.phone || '-') : (order.phone || '-');
+      const custPhone2 = order.customer ? (order.customer.phone2 || order.phone2 || '') : (order.phone2 || '');
       const custAddress = order.customer ? (order.customer.address || order.address || '-') : (order.address || '-');
+      const landmark = order.customer ? (order.customer.landmark || order.landmark || '') : (order.landmark || '');
+      const floor = order.customer ? (order.customer.floor || order.floor || '') : (order.floor || '');
+      const apt = order.customer ? (order.customer.apartment || order.customer.apt || order.apt || '') : (order.apt || '');
+
       const orderId = order.orderId || order.id || key.slice(-5);
       const timeStr = order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : '';
       const assignedDriver = order.driverName ? order.driverName : 'غير محدد';
@@ -1083,12 +1100,17 @@
           <p style="font-size: 13px; font-weight: 900; margin-top: 4px;">طريقة الدفع: ${paymentText}</p>
           <p style="font-size: 11px; font-weight: bold;">${timeStr}</p>
         </div>
-        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 800;">
-          <p style="margin:3px 0;">العميل: ${custName}</p>
-          <p style="margin:3px 0;">الهاتف: ${custPhone}</p>
-          <p style="margin:3px 0;">العنوان: ${custAddress}</p>
-          <p style="margin:4px 0; font-weight: 900;">🛵 الطيار: ${assignedDriver}</p>
+
+        <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 800; line-height: 1.5;">
+          <p style="margin:2px 0;">العميل: ${custName}</p>
+          <p style="margin:2px 0;">الهاتف: ${custPhone}</p>
+          ${custPhone2 ? `<p style="margin:2px 0;">هاتف ثاني: ${custPhone2}</p>` : ''}
+          <p style="margin:2px 0;">العنوان: ${custAddress}</p>
+          ${landmark ? `<p style="margin:2px 0;">علامة مميزة: ${landmark}</p>` : ''}
+          <p style="margin:2px 0;">الدور: ${floor || '-'} | الشقة: ${apt || '-'}</p>
+          <p style="margin:3px 0; font-weight: 900;">🛵 الطيار: ${assignedDriver}</p>
         </div>
+
         <div style="border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
           <table style="width: 100%; text-align: right; font-size: 13px; border-collapse: collapse; font-weight: 800;">
             <thead><tr style="border-bottom: 2px solid #000;"><th style="text-align: right;">الصنف</th><th style="text-align: center;">العدد</th><th style="text-align: left;">السعر</th></tr></thead>
@@ -1103,17 +1125,40 @@
             </tbody>
           </table>
         </div>
+
         <div style="border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 900;">
           <div style="display: flex; justify-content: space-between;"><span>المجموع:</span><span>${order.subtotal || 0} ج.م</span></div>
           <div style="display: flex; justify-content: space-between;"><span>التوصيل:</span><span>${order.deliveryFee || 0} ج.م</span></div>
           <div style="display: flex; justify-content: space-between; font-size: 17px; border-top: 2px solid #000; padding-top: 4px; margin-top: 4px;"><span>الإجمالي:</span><span>${order.total || 0} ج.م</span></div>
         </div>
 
-      <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;"><p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p></div>
+        <div style="text-align: center; margin: 10px 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div id="receipt-qrcode" style="display: inline-block;"></div>
+          <div style="font-size: 11px; font-weight: bold; margin-top: 4px;">امسح الكود لزيارة المنيو 📱</div>
+        </div>
+
         <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 8px;"><p style="margin: 2px 0;">شكراً لطلبكم من الركن الشامي ❤️</p></div>
       `;
+
       printArea.classList.remove('hidden');
-      setTimeout(() => { window.print(); printArea.classList.add('hidden'); if (callback) callback(); }, 150);
+      
+      // توليد الـ QR Code الحقيقي برابط المنيو المطلوب
+      try {
+        const qrContainer = document.getElementById('receipt-qrcode');
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, {
+          text: "https://alroknalshami.blogspot.com/",
+          width: 90,
+          height: 90,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.error("QR Code error:", e);
+      }
+
+      setTimeout(() => { window.print(); printArea.classList.add('hidden'); if (callback) callback(); }, 250);
     }
 
     function printKitchenTicket(key, callback) {
@@ -1125,7 +1170,7 @@
 
       const printArea = document.getElementById('print-area');
       printArea.innerHTML = `
-        <div style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 2px;">Summary</div>
+        <div style="text-align: center; font-size: 20px; font-weight: 900; margin-bottom: 2px;">بون المطبخ</div>
         <div style="text-align: center; font-size: 14px; font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 6px;">
           رقم الاوردر: #${orderId} | النوع: ${order.orderType || 'توصيل'}
           <div style="font-size: 14px; font-weight: bold; margin-top: 2px;">التاريخ: ${dateStr} | الوقت: ${timeStr}</div>
