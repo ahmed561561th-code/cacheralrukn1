@@ -6,8 +6,7 @@
   <title>الركن الشامي - نظام الكاشير والإدارة المتكامل</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.min.js"></script>
-  <style>
+<style>
     * { font-family: 'Tajawal', sans-serif !important; }
     body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; user-select: none; }
     .tab-active { background-color: #b91c1c; color: #ffffff; box-shadow: 0 4px 12px rgba(185, 28, 88, 0.3); }
@@ -34,13 +33,13 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-  <!-- شاشة تسجيل دخول الكاشير -->
+  <!-- شاشة تسجيل دخول الكاشير / المستخدمين -->
   <div id="cashierLoginScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 text-white shadow-2xl space-y-4">
       <div class="text-center space-y-1">
         <div class="inline-block bg-red-600 text-white font-black px-4 py-1.5 rounded-xl text-lg">الركن الشامي</div>
         <h1 class="text-2xl font-black pt-1">🔐 تسجيل دخول الكاشير</h1>
-        <p class="text-xs text-slate-400 font-bold">أدخل اسم المستخدم وكلمة المرور الخاصة بالكاشير</p>
+        <p class="text-xs text-slate-400 font-bold">أدخل اسم المستخدم وكلمة المرور الخاصة بحسابك</p>
       </div>
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1">اسم المستخدم (Username)</label>
@@ -62,45 +61,48 @@
     <div class="p-4 border-b border-slate-800 flex items-center justify-between">
       <div>
         <div class="text-base font-black text-amber-400">الركن الشامي</div>
-        <div class="text-[11px] text-slate-400 font-bold">القائمة الرئيسية للنظام</div>
+        <div id="activeUserRoleBadge" class="text-[11px] text-slate-400 font-bold">القائمة الرئيسية للنظام</div>
       </div>
       <button onclick="toggleSidebar(false)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 font-black text-sm">✕</button>
     </div>
     <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto">
-      <button onclick="switchTab('pos'); toggleSidebar(false);" id="nav-pos" class="tab-btn tab-active w-full text-right px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('pos'); toggleSidebar(false);" id="nav-pos" data-perm="pos" class="tab-btn tab-active w-full text-right px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>🛒 الكاشير</span>
       </button>
-      <button onclick="switchTab('ordersPage'); toggleSidebar(false);" id="nav-ordersPage" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('ordersPage'); toggleSidebar(false);" id="nav-ordersPage" data-perm="ordersPage" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>📦 أوردرات اليوم</span>
       </button>
-      <button onclick="switchTab('online'); toggleSidebar(false);" id="nav-online" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-between relative">
+      <button onclick="switchTab('online'); toggleSidebar(false);" id="nav-online" data-perm="online" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-between relative">
         <span class="flex items-center gap-2"><span>🔔 طلبات الأونلاين</span></span>
         <span id="onlineBadge" class="bg-amber-500 text-slate-950 text-xs font-black px-2 py-0.5 rounded-full">0</span>
       </button>
-      <button onclick="switchTab('activeDelivery'); toggleSidebar(false);" id="nav-activeDelivery" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('activeDelivery'); toggleSidebar(false);" id="nav-activeDelivery" data-perm="activeDelivery" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>🛵 متابعة الدليفري</span>
       </button>
-      <button onclick="switchTab('driverSettlement'); toggleSidebar(false);" id="nav-driverSettlement" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-between relative">
+      <button onclick="switchTab('driverSettlement'); toggleSidebar(false);" id="nav-driverSettlement" data-perm="driverSettlement" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-between relative">
         <span class="flex items-center gap-2"><span>💰 تحصيل الطيارين</span></span>
         <span id="settlementBadge" class="hidden bg-emerald-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full">!</span>
       </button>
-      <button onclick="switchTab('menuMgmt'); toggleSidebar(false);" id="nav-menuMgmt" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('menuMgmt'); toggleSidebar(false);" id="nav-menuMgmt" data-perm="menuMgmt" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>🍔 الأصناف والملاحظات</span>
       </button>
-      <button onclick="switchTab('zonesDrivers'); toggleSidebar(false);" id="nav-zonesDrivers" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('zonesDrivers'); toggleSidebar(false);" id="nav-zonesDrivers" data-perm="zonesDrivers" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>🗺️ المناطق والطيارين</span>
       </button>
-      <button onclick="switchTab('customers'); toggleSidebar(false);" id="nav-customers" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('customers'); toggleSidebar(false);" id="nav-customers" data-perm="customers" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>👥 العملاء</span>
       </button>
-      <button onclick="switchTab('reports'); toggleSidebar(false);" id="nav-reports" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('reports'); toggleSidebar(false);" id="nav-reports" data-perm="reports" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>📊 التقارير والتقفيل</span>
       </button>
-      <button onclick="switchTab('monthSales'); toggleSidebar(false);" id="nav-monthSales" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('monthSales'); toggleSidebar(false);" id="nav-monthSales" data-perm="monthSales" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>📅 فواتير الأيام</span>
       </button>
-      <button onclick="switchTab('settings'); toggleSidebar(false);" id="nav-settings" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+      <button onclick="switchTab('settings'); toggleSidebar(false);" id="nav-settings" data-perm="settings" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
         <span>🖨️ الطابعات والنسخ الاحتياطي</span>
+      </button>
+      <button onclick="switchTab('usersMgmt'); toggleSidebar(false);" id="nav-usersMgmt" data-perm="usersMgmt" class="tab-btn w-full text-right bg-slate-800 hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2">
+        <span>🛡️ المستخدمون والصلاحيات</span>
       </button>
     </nav>
   </aside>
@@ -139,7 +141,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <span id="qzStatus" class="hidden sm:inline-block text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-bold">QZ: جاري الفحص</span>
+      <span id="headerCurrentUserBadge" class="hidden md:inline-block text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-amber-300 font-black"></span>
       <button onclick="logoutCashier()" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-red-700 text-slate-200 font-bold">خروج</button>
     </div>
   </header>
@@ -255,7 +257,8 @@
       <div class="max-w-6xl mx-auto space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
           <h2 class="text-xl font-black text-slate-800">📦 صفحة أوردرات التيك أواي والدليفري</h2>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportPhoneOrdersFileToComputer()" class="bg-blue-700 hover:bg-blue-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-black shadow">💾 حفظ ملف أوردرات التليفون على الكمبيوتر</button>
             <button onclick="setOrdersFilter('all')" id="filterOrd-all" class="px-3.5 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-white">الكل</button>
             <button onclick="setOrdersFilter('takeaway')" id="filterOrd-takeaway" class="px-3.5 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-700">🛍️ تيك أواي</button>
             <button onclick="setOrdersFilter('delivery')" id="filterOrd-delivery" class="px-3.5 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-700">🛵 دليفري</button>
@@ -268,9 +271,12 @@
     <!-- 2. شاشة طلبات الأونلاين -->
     <section id="tab-online" class="tab-section hidden h-full p-4 overflow-y-auto">
       <div class="max-w-6xl mx-auto">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h2 class="text-xl font-black text-slate-800">🔔 طلبات الأونلاين الواردة من رابط المنيو</h2>
-          <button onclick="testBellSound()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold">🔊 اختبار صوت الجرس</button>
+          <div class="flex gap-2">
+            <button onclick="exportPhoneOrdersFileToComputer()" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-black">💾 حفظ ملف أوردرات التليفون على الكمبيوتر</button>
+            <button onclick="testBellSound()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold">🔊 اختبار صوت الجرس</button>
+          </div>
         </div>
         <div id="onlineOrdersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
@@ -584,16 +590,22 @@
             <input type="tel" id="storePhone2Input" placeholder="مثال: 01100000000" class="w-full p-2.5 border rounded-xl font-bold text-sm">
           </div>
           <div>
-            <label class="block text-xs font-black text-slate-700 mb-1">اسم طابعة الفواتير (الكاشير):</label>
-            <input type="text" id="cashierPrinterInput" placeholder="مثال: XP-80C" class="w-full p-2.5 border rounded-xl font-bold text-sm">
+            <label class="block text-xs font-black text-slate-700 mb-1">طابعة الفواتير (الكاشير) — اختر من طابعات الويندوز:</label>
+            <select id="cashierPrinterSelect" onchange="syncPrinterInputFromSelect('cashier')" class="w-full p-2.5 border rounded-xl font-bold text-sm bg-slate-50 mb-1.5">
+              <option value="">-- اختر طابعة الكاشير من الويندوز --</option>
+            </select>
+            <input type="text" id="cashierPrinterInput" placeholder="أو اكتب اسم الطابعة بالضبط كما في الويندوز" class="w-full p-2 border rounded-xl font-bold text-xs">
           </div>
           <div>
-            <label class="block text-xs font-black text-slate-700 mb-1">اسم طابعة التحضير (المطبخ):</label>
-            <input type="text" id="kitchenPrinterInput" placeholder="مثال: Kitchen_Printer" class="w-full p-2.5 border rounded-xl font-bold text-sm">
+            <label class="block text-xs font-black text-slate-700 mb-1">طابعة التحضير (المطبخ) — اختر من طابعات الويندوز:</label>
+            <select id="kitchenPrinterSelect" onchange="syncPrinterInputFromSelect('kitchen')" class="w-full p-2.5 border rounded-xl font-bold text-sm bg-slate-50 mb-1.5">
+              <option value="">-- اختر طابعة المطبخ من الويندوز --</option>
+            </select>
+            <input type="text" id="kitchenPrinterInput" placeholder="أو اكتب اسم الطابعة بالضبط كما في الويندوز" class="w-full p-2 border rounded-xl font-bold text-xs">
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="savePrinterSettings()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-black text-xs">💾 حفظ الإعدادات والأرقام</button>
-            <button onclick="detectPrinters()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-black text-xs">🔍 جلب الطابعات من QZ</button>
+            <button onclick="savePrinterSettings()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-black text-xs">💾 حفظ الطابعات والأرقام</button>
+            <button onclick="detectPrinters()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-black text-xs">🖨️ تحديث قائمة طابعات الويندوز</button>
           </div>
           <div id="detectedPrintersList" class="text-xs font-bold text-slate-700 bg-slate-50 p-3 rounded-xl hidden"></div>
         </div>
@@ -601,8 +613,11 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
           <h2 class="text-lg font-black text-slate-800">💾 النسخ الاحتياطي والأوفلاين</h2>
           <p class="text-xs text-slate-600 font-bold leading-relaxed">
-            يتم الحفظ تلقائياً في الجهاز عند أي عملية أو انقطاع كهرباء/نت، ويمكنك تنزيل نسخة احتياطية أو رفعها في أي وقت.
+            يتم الحفظ تلقائياً في الجهاز عند أي عملية أو انقطاع نت أو خروج من البرنامج، مع رفع تلقائي لفاير بيس عند عودة النت وحفظ ملف لأوردرات التليفون على الكمبيوتر.
           </p>
+          <button onclick="exportPhoneOrdersFileToComputer()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-xs">
+            📱 حفظ ملف أوردرات التليفون على الكمبيوتر
+          </button>
           <button onclick="downloadBackupFile('manual')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-black text-xs">
             ⬇️ تنزيل نسخة احتياطية الآن
           </button>
@@ -611,7 +626,7 @@
             <input type="file" id="restoreBackupFileInput" accept=".json,application/json" onchange="restoreBackupFile(event)" class="hidden">
           </label>
           <div id="lastBackupStatusText" class="text-[11px] font-bold text-slate-500 bg-slate-50 p-2.5 rounded-xl">
-            الحفظ التلقائي المحلي مفعّل على مدار الساعة.
+            الحفظ التلقائي المحلي والنسخ عند الخروج مفعّلان على مدار الساعة.
           </div>
         </div>
 
@@ -632,6 +647,61 @@
           <button onclick="saveAuthSettings()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black text-xs">
             💾 حفظ بيانات الدخول وباسورد المدير
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. شاشة المستخدمين والصلاحيات -->
+    <section id="tab-usersMgmt" class="tab-section hidden h-full p-4 overflow-y-auto">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h2 class="text-lg font-black text-slate-800">🛡️ إضافة مستخدم وتحديد صلاحيات الصفحات</h2>
+          <p class="text-xs font-bold text-slate-500">اختر اليوزر نيم والباسورد ثم حدد الصفحات الجانبية التي يحق لهذا المستخدم رؤيتها والدخول إليها.</p>
+          <div>
+            <label class="block text-xs font-black text-slate-700 mb-1">اسم المستخدم (Username) *</label>
+            <input type="text" id="newSubUserName" placeholder="مثال: cashier2 أو kitchen1" class="w-full p-2.5 border rounded-xl text-sm font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-black text-slate-700 mb-1">كلمة المرور (Password) *</label>
+            <input type="text" id="newSubUserPass" placeholder="مثال: 2026" class="w-full p-2.5 border rounded-xl text-sm font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-black text-slate-700 mb-1">اسم العرض / الدور (اختياري)</label>
+            <input type="text" id="newSubUserLabel" placeholder="مثال: كاشير شيفت مسائي" class="w-full p-2.5 border rounded-xl text-sm font-bold">
+          </div>
+
+          <div class="border-t pt-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-slate-800">الصفحات المسموح له بالدخول إليها:</span>
+              <div class="flex gap-2 text-[11px] font-black">
+                <button type="button" onclick="setAllPermissionCheckboxes(true)" class="text-emerald-700 hover:underline">تحديد الكل</button>
+                <button type="button" onclick="setAllPermissionCheckboxes(false)" class="text-red-600 hover:underline">إلغاء الكل</button>
+              </div>
+            </div>
+            <div id="userPermissionsChecklist" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-2 bg-slate-50 rounded-xl border">
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="pos" checked><span>🛒 الكاشير</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="ordersPage"><span>📦 أوردرات اليوم</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="online"><span>🔔 طلبات الأونلاين</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="activeDelivery"><span>🛵 متابعة الدليفري</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="driverSettlement"><span>💰 تحصيل الطيارين</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="menuMgmt"><span>🍔 الأصناف والملاحظات</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="zonesDrivers"><span>🗺️ المناطق والطيارين</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="customers"><span>👥 العملاء</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="reports"><span>📊 التقارير والتقفيل</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="monthSales"><span>📅 فواتير الأيام</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="settings"><span>🖨️ الطابعات والنسخ الاحتياطي</span></label>
+              <label class="flex items-center gap-2 text-xs font-black text-slate-800 cursor-pointer"><input type="checkbox" class="perm-chk w-4 h-4 accent-red-600" value="usersMgmt"><span>🛡️ المستخدمون والصلاحيات</span></label>
+            </div>
+          </div>
+
+          <button type="button" onclick="createSystemUser()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-black text-sm shadow">
+            ➕ حفظ المستخدم والصلاحيات
+          </button>
+        </div>
+
+        <div class="lg:col-span-7 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-black text-base text-slate-800">📋 المستخدمون المسجلون وصلاحيات كل يوزر</h3>
+          <div id="systemUsersList" class="space-y-3"></div>
         </div>
       </div>
     </section>
@@ -790,6 +860,24 @@
     const MENU_ORDER_URL = "https://alroknalshami.blogspot.com/";
     const LOCAL_SNAPSHOT_KEY = "rukn_pos_offline_snapshot_v1";
     const LOCAL_MONTH_LEDGER_KEY = "rukn_pos_month_ledger_v1";
+    const LOCAL_PHONE_ORDERS_KEY = "rukn_pos_phone_orders_computer_v1";
+    const LOCAL_PENDING_SYNC_KEY = "rukn_pos_pending_firebase_sync_v1";
+    const LOCAL_SESSION_USER_KEY = "rukn_pos_logged_user_v1";
+
+    const ALL_PAGE_PERMISSIONS = [
+      { id: 'pos', label: '🛒 الكاشير' },
+      { id: 'ordersPage', label: '📦 أوردرات اليوم' },
+      { id: 'online', label: '🔔 طلبات الأونلاين' },
+      { id: 'activeDelivery', label: '🛵 متابعة الدليفري' },
+      { id: 'driverSettlement', label: '💰 تحصيل الطيارين' },
+      { id: 'menuMgmt', label: '🍔 الأصناف والملاحظات' },
+      { id: 'zonesDrivers', label: '🗺️ المناطق والطيارين' },
+      { id: 'customers', label: '👥 العملاء' },
+      { id: 'reports', label: '📊 التقارير والتقفيل' },
+      { id: 'monthSales', label: '📅 فواتير الأيام' },
+      { id: 'settings', label: '🖨️ الطابعات والنسخ الاحتياطي' },
+      { id: 'usersMgmt', label: '🛡️ المستخدمون والصلاحيات' }
+    ];
 
     const firebaseConfig = {
       databaseURL: "https://alrukn-90cc9-default-rtdb.firebaseio.com/"
@@ -806,6 +894,10 @@
       drivers: {},
       customers: {},
       orders: {},
+      phoneOrdersArchive: [],
+      pendingFirebaseSync: [],
+      systemUsers: [],
+      activeSessionUser: null,
       monthLedger: [],
       presetNotes: ['حار', 'سبايسي', 'بدون عيش', 'بدون ثومية', 'زيادة صوص', 'بدون مخلل', 'متحمص زيادة'],
       storePhones: { phone1: '01000000000', phone2: '01100000000' },
@@ -845,17 +937,27 @@
       if (dateEl) dateEl.textContent = formatShiftDateLabel(todayStr());
       if (clockEl) clockEl.textContent = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       if (netEl) {
+        const pendingCount = (state.pendingFirebaseSync || []).length;
         if (navigator.onLine) {
-          netEl.textContent = '🌐 أونلاين';
+          netEl.textContent = pendingCount > 0 ? `🔄 جاري رفع (${pendingCount})` : '🌐 أونلاين';
           netEl.className = 'px-2 py-0.5 rounded-lg text-[10px] font-black bg-emerald-900 text-emerald-300';
         } else {
-          netEl.textContent = '⚡ أوفلاين (حفظ محلي)';
+          netEl.textContent = `⚡ أوفلاين (${pendingCount} بانتظار الرفع)`;
           netEl.className = 'px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-600 text-slate-950 animate-pulse';
         }
       }
     }
     setInterval(updateClockAndNetBadge, 1000);
+    setInterval(persistLocalSnapshot, 30000);
+    setInterval(() => {
+      if (navigator.onLine) flushPendingFirebaseQueue();
+    }, 5000);
     updateClockAndNetBadge();
+    setTimeout(() => {
+      if (window.desktopBridge || window.electronAPI || (window.chrome && window.chrome.webview)) {
+        window.detectPrinters();
+      }
+    }, 600);
 
     window.toggleSidebar = (open) => {
       const drawer = document.getElementById('sideMenuDrawer');
@@ -879,6 +981,7 @@
           drivers: state.drivers,
           customers: state.customers,
           orders: state.orders,
+          systemUsers: state.systemUsers,
           shiftDate: state.shiftDate,
           orderCounter: state.orderCounter,
           storeOpen: state.storeOpen,
@@ -888,6 +991,8 @@
         };
         localStorage.setItem(LOCAL_SNAPSHOT_KEY, JSON.stringify(snapshot));
         localStorage.setItem(LOCAL_MONTH_LEDGER_KEY, JSON.stringify(state.monthLedger));
+        localStorage.setItem(LOCAL_PHONE_ORDERS_KEY, JSON.stringify(state.phoneOrdersArchive));
+        localStorage.setItem(LOCAL_PENDING_SYNC_KEY, JSON.stringify(state.pendingFirebaseSync));
       } catch (e) {}
     }
 
@@ -902,6 +1007,7 @@
           state.drivers = snap.drivers || {};
           state.customers = snap.customers || {};
           state.orders = snap.orders || {};
+          state.systemUsers = snap.systemUsers || [];
           state.shiftDate = snap.shiftDate || calendarTodayStr();
           state.orderCounter = snap.orderCounter || 1;
           state.storeOpen = snap.storeOpen !== undefined ? snap.storeOpen : true;
@@ -914,8 +1020,126 @@
         if (ledgerRaw) {
           state.monthLedger = JSON.parse(ledgerRaw) || [];
         }
+        const phoneRaw = localStorage.getItem(LOCAL_PHONE_ORDERS_KEY);
+        if (phoneRaw) {
+          state.phoneOrdersArchive = JSON.parse(phoneRaw) || [];
+        }
+        const pendingRaw = localStorage.getItem(LOCAL_PENDING_SYNC_KEY);
+        if (pendingRaw) {
+          state.pendingFirebaseSync = JSON.parse(pendingRaw) || [];
+        }
+        const savedUserRaw = localStorage.getItem(LOCAL_SESSION_USER_KEY);
+        if (savedUserRaw) {
+          state.activeSessionUser = JSON.parse(savedUserRaw);
+        }
       } catch (e) {}
     }
+
+    function enqueueFirebaseOp(op) {
+      state.pendingFirebaseSync.push({
+        id: `op_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        createdAt: Date.now(),
+        ...op
+      });
+      persistLocalSnapshot();
+      updateClockAndNetBadge();
+      if (navigator.onLine) {
+        flushPendingFirebaseQueue();
+      }
+    }
+
+    let isFlushingQueue = false;
+    async function flushPendingFirebaseQueue() {
+      if (isFlushingQueue || !navigator.onLine || !Array.isArray(state.pendingFirebaseSync) || state.pendingFirebaseSync.length === 0) return;
+      isFlushingQueue = true;
+      updateClockAndNetBadge();
+      try {
+        const remaining = [];
+        for (const op of [...state.pendingFirebaseSync]) {
+          try {
+            if (op.kind === 'set') {
+              await set(ref(db, op.path), op.data);
+            } else if (op.kind === 'update') {
+              await update(ref(db, op.path), op.data);
+            } else if (op.kind === 'remove') {
+              await remove(ref(db, op.path));
+            } else if (op.kind === 'push') {
+              await push(ref(db, op.path), op.data);
+            } else if (op.kind === 'create_order') {
+              const counterRef = ref(db, 'meta/dailyCounter');
+              let assignedNum = op.data.orderNumber || 1;
+              await runTransaction(counterRef, (curr) => {
+                assignedNum = curr || assignedNum;
+                return assignedNum + 1;
+              });
+              const payload = { ...op.data, orderNumber: assignedNum, syncedFromOffline: true };
+              await push(ref(db, 'orders'), payload);
+              if (op.tempId && state.orders[op.tempId]) {
+                delete state.orders[op.tempId];
+              }
+            }
+          } catch (err) {
+            remaining.push(op);
+          }
+        }
+        state.pendingFirebaseSync = remaining;
+        persistLocalSnapshot();
+        updateClockAndNetBadge();
+      } finally {
+        isFlushingQueue = false;
+      }
+    }
+
+    function archivePhoneOrderForComputer(order) {
+      if (!order) return;
+      const isPhoneOrder = order.source === 'online' || order.status === 'pending_online' || order.fromPhone === true;
+      if (!isPhoneOrder) return;
+      const entry = {
+        archivedAt: new Date().toISOString(),
+        date: order.date || todayStr(),
+        orderNumber: order.orderNumber || 'أونلاين',
+        type: order.type || 'delivery',
+        paymentMethod: order.paymentMethod || 'cash',
+        customer: order.customer || null,
+        items: order.items || [],
+        subTotal: order.subTotal || 0,
+        deliveryFee: order.deliveryFee || 0,
+        total: order.total || 0,
+        notes: order.notes || ''
+      };
+      const idx = state.phoneOrdersArchive.findIndex(x =>
+        String(x.orderNumber) === String(entry.orderNumber) &&
+        String(x.customer?.phone1 || '') === String(entry.customer?.phone1 || '') &&
+        Number(x.total || 0) === Number(entry.total || 0)
+      );
+      if (idx >= 0) state.phoneOrdersArchive[idx] = { ...state.phoneOrdersArchive[idx], ...entry };
+      else state.phoneOrdersArchive.unshift(entry);
+      persistLocalSnapshot();
+    }
+
+    window.exportPhoneOrdersFileToComputer = () => {
+      persistLocalSnapshot();
+      const phoneOrdersList = state.phoneOrdersArchive.length > 0
+        ? state.phoneOrdersArchive
+        : Object.values(state.orders).filter(o => o && (o.source === 'online' || o.status === 'pending_online'));
+
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        restaurant: 'الركن الشامي',
+        totalPhoneOrders: phoneOrdersList.length,
+        orders: phoneOrdersList
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `alrukn-phone-orders-${todayStr()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToastModal(`تم حفظ ملف أوردرات التليفون (${phoneOrdersList.length} أوردر) على الكمبيوتر`, '💾');
+    };
 
     function recordOrderInMonthLedger(order) {
       if (!order || order.status === 'pending_online' || order.status === 'rejected' || order.status === 'cancelled') return;
@@ -942,7 +1166,9 @@
       state.monthLedger = [];
       try {
         await remove(ref(db, 'monthLedger'));
-      } catch (e) {}
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'remove', path: 'monthLedger' });
+      }
       persistLocalSnapshot();
       renderMonthSales();
       showToastModal('تم حذف جميع عمليات الشهر بالكامل بنجاح', '🗑️');
@@ -954,7 +1180,8 @@
         exportedAt: new Date().toISOString(),
         mode,
         snapshot: JSON.parse(localStorage.getItem(LOCAL_SNAPSHOT_KEY) || '{}'),
-        monthLedger: state.monthLedger
+        monthLedger: state.monthLedger,
+        phoneOrdersArchive: state.phoneOrdersArchive
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -966,7 +1193,7 @@
       a.remove();
       URL.revokeObjectURL(url);
       const stEl = document.getElementById('lastBackupStatusText');
-      if (stEl) stEl.textContent = `آخر نسخة احتياطية (${mode === 'auto-power-loss' ? 'تلقائية عند فصل الاتصال' : 'يدوية'}): ${new Date().toLocaleTimeString('ar-EG')}`;
+      if (stEl) stEl.textContent = `آخر نسخة احتياطية (${mode === 'auto-exit' ? 'تلقائية عند الخروج' : (mode === 'auto-power-loss' ? 'تلقائية عند فصل الاتصال' : 'يدوية')}): ${new Date().toLocaleTimeString('ar-EG')}`;
     };
 
     window.restoreBackupFile = async (event) => {
@@ -982,10 +1209,14 @@
         if (snap.drivers) { state.drivers = snap.drivers; await set(ref(db, 'drivers'), snap.drivers); }
         if (snap.customers) { state.customers = snap.customers; await set(ref(db, 'customers'), snap.customers); }
         if (snap.orders) { state.orders = snap.orders; await set(ref(db, 'orders'), snap.orders); }
+        if (snap.systemUsers) { state.systemUsers = snap.systemUsers; await set(ref(db, 'systemUsers'), snap.systemUsers); }
         if (snap.shiftDate) { state.shiftDate = snap.shiftDate; await set(ref(db, 'meta/shiftDate'), snap.shiftDate); }
         if (snap.orderCounter) { state.orderCounter = snap.orderCounter; await set(ref(db, 'meta/dailyCounter'), snap.orderCounter); }
         if (Array.isArray(parsed.monthLedger)) {
           state.monthLedger = parsed.monthLedger;
+        }
+        if (Array.isArray(parsed.phoneOrdersArchive)) {
+          state.phoneOrdersArchive = parsed.phoneOrdersArchive;
         }
         persistLocalSnapshot();
         renderCategories();
@@ -998,6 +1229,8 @@
         renderOrdersPage();
         renderReports();
         renderMonthSales();
+        renderSystemUsersList();
+        applyUserPermissionsToUI();
         updateClockAndNetBadge();
         showToastModal('تم رفع واستعادة النسخة الاحتياطية بنجاح!', '⬆️');
       } catch (err) {
@@ -1005,6 +1238,16 @@
       }
       event.target.value = '';
     };
+
+    let autoExitBackupDone = false;
+    function triggerExitBackupOnce() {
+      if (autoExitBackupDone) return;
+      autoExitBackupDone = true;
+      persistLocalSnapshot();
+      try {
+        window.downloadBackupFile('auto-exit');
+      } catch (e) {}
+    }
 
     let autoPowerLossTriggered = false;
     window.addEventListener('offline', () => {
@@ -1019,15 +1262,166 @@
       autoPowerLossTriggered = false;
       updateClockAndNetBadge();
       persistLocalSnapshot();
+      flushPendingFirebaseQueue();
+    });
+    window.addEventListener('pagehide', () => {
+      triggerExitBackupOnce();
     });
     window.addEventListener('beforeunload', () => {
-      persistLocalSnapshot();
-      if (!navigator.onLine) {
-        window.downloadBackupFile('auto-power-loss');
-      }
+      triggerExitBackupOnce();
     });
 
     loadLocalSnapshotOnStart();
+
+    function getUserAllowedTabs(userObj) {
+      if (!userObj) return null;
+      if (userObj.isAdmin || !Array.isArray(userObj.permissions)) {
+        return ALL_PAGE_PERMISSIONS.map(p => p.id);
+      }
+      return userObj.permissions;
+    }
+
+    function applyUserPermissionsToUI() {
+      const u = state.activeSessionUser;
+      const roleBadge = document.getElementById('activeUserRoleBadge');
+      const headerBadge = document.getElementById('headerCurrentUserBadge');
+
+      if (!u) {
+        document.querySelectorAll('[data-perm]').forEach(el => el.classList.remove('hidden'));
+        if (roleBadge) roleBadge.textContent = 'القائمة الرئيسية للنظام';
+        if (headerBadge) headerBadge.classList.add('hidden');
+        return;
+      }
+
+      const allowed = getUserAllowedTabs(u);
+      const displayName = u.label ? `${u.label} (${u.username})` : u.username;
+      if (roleBadge) roleBadge.textContent = `المستخدم: ${displayName}`;
+      if (headerBadge) {
+        headerBadge.textContent = `👤 ${displayName}`;
+        headerBadge.classList.remove('hidden');
+      }
+
+      document.querySelectorAll('[data-perm]').forEach(el => {
+        const perm = el.getAttribute('data-perm');
+        if (allowed.includes(perm)) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      const currentActiveSec = document.querySelector('.tab-section:not(.hidden)');
+      const currentTabId = currentActiveSec ? currentActiveSec.id.replace('tab-', '') : 'pos';
+      if (!allowed.includes(currentTabId) && allowed.length > 0) {
+        switchTab(allowed[0]);
+      }
+    }
+
+    window.setAllPermissionCheckboxes = (checked) => {
+      document.querySelectorAll('.perm-chk').forEach(cb => { cb.checked = checked; });
+    };
+
+    window.createSystemUser = async () => {
+      const username = document.getElementById('newSubUserName').value.trim();
+      const password = document.getElementById('newSubUserPass').value.trim();
+      const label = document.getElementById('newSubUserLabel').value.trim() || username;
+      const permissions = Array.from(document.querySelectorAll('.perm-chk:checked')).map(cb => cb.value);
+
+      if (!username || !password) {
+        return showToastModal('اكتب اسم المستخدم وكلمة المرور أولاً!', '⚠️');
+      }
+      if (permissions.length === 0) {
+        return showToastModal('اختر صفحة واحدة على الأقل لهذا المستخدم!', '⚠️');
+      }
+
+      const newUser = {
+        id: `usr_${Date.now()}`,
+        username,
+        password,
+        label,
+        permissions,
+        isAdmin: false
+      };
+
+      const existingIdx = state.systemUsers.findIndex(x => x.username === username);
+      if (existingIdx >= 0) {
+        state.systemUsers[existingIdx] = { ...state.systemUsers[existingIdx], ...newUser, id: state.systemUsers[existingIdx].id };
+      } else {
+        state.systemUsers.push(newUser);
+      }
+
+      persistLocalSnapshot();
+      try {
+        await set(ref(db, 'systemUsers'), state.systemUsers);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'systemUsers', data: state.systemUsers });
+      }
+
+      document.getElementById('newSubUserName').value = '';
+      document.getElementById('newSubUserPass').value = '';
+      document.getElementById('newSubUserLabel').value = '';
+      renderSystemUsersList();
+      showToastModal(`تم حفظ المستخدم (${username}) وتحديد صلاحياته بنجاح`, '🛡️');
+    };
+
+    window.deleteSystemUser = async (userId) => {
+      if (!confirm('حذف هذا المستخدم؟')) return;
+      state.systemUsers = state.systemUsers.filter(u => u.id !== userId);
+      persistLocalSnapshot();
+      try {
+        await set(ref(db, 'systemUsers'), state.systemUsers);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'systemUsers', data: state.systemUsers });
+      }
+      renderSystemUsersList();
+      showToastModal('تم حذف المستخدم', '🗑️');
+    };
+
+    window.renderSystemUsersList = () => {
+      const box = document.getElementById('systemUsersList');
+      if (!box) return;
+      if (!state.systemUsers || state.systemUsers.length === 0) {
+        box.innerHTML = '<div class="text-center text-slate-400 font-bold py-8 text-xs">لم يتم إضافة مستخدمين فرعيين بعد (حساب الكاشير الأساسي مفعل من الإعدادات)</div>';
+        return;
+      }
+
+      box.innerHTML = state.systemUsers.map(u => {
+        const permLabels = (u.permissions || []).map(pid => {
+          const found = ALL_PAGE_PERMISSIONS.find(p => p.id === pid);
+          return `<span class="bg-slate-100 border border-slate-300 text-slate-800 px-2 py-0.5 rounded-lg text-[11px] font-black">${found ? found.label : pid}</span>`;
+        }).join('');
+
+        return `
+          <div class="border border-slate-200 rounded-2xl p-3.5 bg-slate-50/60 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="font-black text-sm text-slate-900">👤 ${u.label || u.username}</div>
+                <div class="text-xs font-bold text-blue-700">يوزر: <b>${u.username}</b> | باسورد: <b>${u.password}</b></div>
+              </div>
+              <button type="button" onclick="deleteSystemUser('${u.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-xl text-xs font-black">حذف</button>
+            </div>
+            <div class="flex flex-wrap gap-1.5 pt-1">${permLabels || '<span class="text-xs text-slate-400">بدون صلاحيات</span>'}</div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    onValue(ref(db, 'systemUsers'), (snap) => {
+      if (snap.val()) {
+        const val = snap.val();
+        state.systemUsers = Array.isArray(val) ? val : Object.values(val);
+      }
+      renderSystemUsersList();
+      if (state.activeSessionUser && !state.activeSessionUser.isAdmin) {
+        const refreshed = state.systemUsers.find(u => u.username === state.activeSessionUser.username);
+        if (refreshed) {
+          state.activeSessionUser = refreshed;
+          localStorage.setItem(LOCAL_SESSION_USER_KEY, JSON.stringify(refreshed));
+          applyUserPermissionsToUI();
+        }
+      }
+      persistLocalSnapshot();
+    });
 
     onValue(ref(db, 'meta/shiftDate'), (snap) => {
       if (snap.val()) {
@@ -1050,6 +1444,15 @@
       persistLocalSnapshot();
     });
 
+    function unlockSessionIfSaved() {
+      if (localStorage.getItem('rukn_cashier_logged') === 'true' || sessionStorage.getItem('rukn_cashier_logged') === 'true') {
+        localStorage.setItem('rukn_cashier_logged', 'true');
+        sessionStorage.setItem('rukn_cashier_logged', 'true');
+        document.getElementById('cashierLoginScreen').classList.add('hidden');
+        applyUserPermissionsToUI();
+      }
+    }
+
     onValue(ref(db, 'systemAuth'), (snap) => {
       if (snap.val()) {
         state.auth = { ...state.auth, ...snap.val() };
@@ -1058,25 +1461,57 @@
       document.getElementById('cfgCashierPass').value = state.auth.cashierPass;
       document.getElementById('cfgAdminPass').value = state.auth.adminPass;
       persistLocalSnapshot();
-
-      if (sessionStorage.getItem('rukn_cashier_logged') === 'true') {
-        document.getElementById('cashierLoginScreen').classList.add('hidden');
-      }
+      unlockSessionIfSaved();
     });
+
+    unlockSessionIfSaved();
+    renderSystemUsersList();
 
     window.loginCashier = () => {
       const u = document.getElementById('loginCashierUser').value.trim();
       const p = document.getElementById('loginCashierPass').value.trim();
+
       if (u === state.auth.cashierUser && p === state.auth.cashierPass) {
+        const adminSession = {
+          username: u,
+          label: 'الكاشير الرئيسي',
+          isAdmin: true,
+          permissions: ALL_PAGE_PERMISSIONS.map(x => x.id)
+        };
+        state.activeSessionUser = adminSession;
+        localStorage.setItem(LOCAL_SESSION_USER_KEY, JSON.stringify(adminSession));
+        localStorage.setItem('rukn_cashier_logged', 'true');
         sessionStorage.setItem('rukn_cashier_logged', 'true');
         document.getElementById('cashierLoginScreen').classList.add('hidden');
-      } else {
-        showToastModal('اسم المستخدم أو كلمة المرور الخاصة بالكاشير غير صحيحة!', '🔐');
+        applyUserPermissionsToUI();
+        return;
       }
+
+      const subUser = (state.systemUsers || []).find(item => item && item.username === u && item.password === p);
+      if (subUser) {
+        const userSession = {
+          ...subUser,
+          isAdmin: false
+        };
+        state.activeSessionUser = userSession;
+        localStorage.setItem(LOCAL_SESSION_USER_KEY, JSON.stringify(userSession));
+        localStorage.setItem('rukn_cashier_logged', 'true');
+        sessionStorage.setItem('rukn_cashier_logged', 'true');
+        document.getElementById('cashierLoginScreen').classList.add('hidden');
+        applyUserPermissionsToUI();
+        return;
+      }
+
+      showToastModal('اسم المستخدم أو كلمة المرور غير صحيحة!', '🔐');
     };
 
     window.logoutCashier = () => {
+      localStorage.removeItem('rukn_cashier_logged');
       sessionStorage.removeItem('rukn_cashier_logged');
+      localStorage.removeItem(LOCAL_SESSION_USER_KEY);
+      state.activeSessionUser = null;
+      document.getElementById('loginCashierUser').value = '';
+      document.getElementById('loginCashierPass').value = '';
       document.getElementById('cashierLoginScreen').classList.remove('hidden');
     };
 
@@ -1084,9 +1519,14 @@
       const cashierUser = document.getElementById('cfgCashierUser').value.trim() || 'cashier';
       const cashierPass = document.getElementById('cfgCashierPass').value.trim() || '1234';
       const adminPass = document.getElementById('cfgAdminPass').value.trim() || 'admin123';
-      await set(ref(db, 'systemAuth'), { cashierUser, cashierPass, adminPass });
-      state.auth = { cashierUser, cashierPass, adminPass };
+      const authPayload = { cashierUser, cashierPass, adminPass };
+      state.auth = authPayload;
       persistLocalSnapshot();
+      try {
+        await set(ref(db, 'systemAuth'), authPayload);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'systemAuth', data: authPayload });
+      }
       showToastModal('تم حفظ يوزر وباسورد الكاشير وباسورد المدير بنجاح', '🔐');
     };
 
@@ -1136,7 +1576,14 @@
 
     window.toggleStoreOpenStatus = async () => {
       const nextState = !state.storeOpen;
-      await set(ref(db, 'storeStatus'), { isOpen: nextState, updatedAt: Date.now() });
+      const payload = { isOpen: nextState, updatedAt: Date.now() };
+      state.storeOpen = nextState;
+      persistLocalSnapshot();
+      try {
+        await set(ref(db, 'storeStatus'), payload);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'storeStatus', data: payload });
+      }
       showToastModal(nextState ? 'تم فتح المحل على صفحة المنيو' : 'تم إغلاق المحل على صفحة المنيو', nextState ? '🟢' : '🔴');
     };
 
@@ -1170,7 +1617,11 @@
       if (!txt) return;
       if (!state.presetNotes.includes(txt)) {
         state.presetNotes.push(txt);
-        await set(ref(db, 'presetNotes'), state.presetNotes);
+        try {
+          await set(ref(db, 'presetNotes'), state.presetNotes);
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'set', path: 'presetNotes', data: state.presetNotes });
+        }
       }
       inp.value = '';
       renderMgmtNotesList();
@@ -1182,7 +1633,11 @@
     window.deletePresetNoteByIndex = async (idx) => {
       const removed = state.presetNotes[idx];
       state.presetNotes.splice(idx, 1);
-      await set(ref(db, 'presetNotes'), state.presetNotes);
+      try {
+        await set(ref(db, 'presetNotes'), state.presetNotes);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'presetNotes', data: state.presetNotes });
+      }
       renderMgmtNotesList();
       renderPresetNotesChips();
       persistLocalSnapshot();
@@ -1208,7 +1663,7 @@
     };
 
     function updateAlarmState() {
-      const pendingOnline = Object.entries(state.orders).filter(([_, o]) => o.status === 'pending_online');
+      const pendingOnline = Object.entries(state.orders).filter(([_, o]) => o && o.status === 'pending_online');
       const badge = document.getElementById('onlineBadge');
       const topBadge = document.getElementById('topOnlineBadge');
       const topQuickBtn = document.getElementById('topOnlineQuickBtn');
@@ -1238,24 +1693,31 @@
     }
 
     onValue(ref(db, 'meta/dailyCounter'), (snap) => {
-      state.orderCounter = snap.val() || 1;
-      document.getElementById('nextOrderBadge').textContent = `#${state.orderCounter}`;
-      persistLocalSnapshot();
+      const remoteVal = Number(snap.val() || 0);
+      if (remoteVal > 0 && (state.pendingFirebaseSync || []).length === 0) {
+        state.orderCounter = remoteVal;
+        document.getElementById('nextOrderBadge').textContent = `#${state.orderCounter}`;
+        persistLocalSnapshot();
+      }
     });
 
     onValue(ref(db, 'categories'), (snap) => {
-      state.categories = snap.val() || {};
+      if (snap.val() || navigator.onLine) {
+        state.categories = snap.val() || {};
+      }
       renderCategories();
       renderReports();
       persistLocalSnapshot();
     });
 
     onValue(ref(db, 'items'), (snap) => {
-      state.items = snap.val() || {};
+      if (snap.val() || navigator.onLine) {
+        state.items = snap.val() || {};
+      }
       const today = todayStr();
       Object.entries(state.items).forEach(([id, item]) => {
         if (item.disabledDate && item.disabledDate !== today) {
-          update(ref(db, `items/${id}`), { disabledDate: null });
+          update(ref(db, `items/${id}`), { disabledDate: null }).catch(() => {});
         }
       });
       renderPosItems();
@@ -1265,35 +1727,51 @@
     });
 
     onValue(ref(db, 'zones'), (snap) => {
-      state.zones = snap.val() || {};
+      if (snap.val() || navigator.onLine) {
+        state.zones = snap.val() || {};
+      }
       renderZones();
       persistLocalSnapshot();
     });
 
     onValue(ref(db, 'drivers'), (snap) => {
-      state.drivers = snap.val() || {};
+      if (snap.val() || navigator.onLine) {
+        state.drivers = snap.val() || {};
+      }
       renderDrivers();
       renderDriverSettlement();
       persistLocalSnapshot();
     });
 
     onValue(ref(db, 'customers'), (snap) => {
-      state.customers = snap.val() || {};
+      if (snap.val() || navigator.onLine) {
+        state.customers = snap.val() || {};
+      }
       renderCustomersTable();
       persistLocalSnapshot();
     });
 
     onValue(ref(db, 'orders'), (snap) => {
-      state.orders = snap.val() || {};
+      const remoteOrders = snap.val() || {};
+      const localOnlyPending = {};
+      Object.entries(state.orders || {}).forEach(([id, o]) => {
+        if (id.startsWith('local_') && o) {
+          localOnlyPending[id] = o;
+        }
+      });
+      state.orders = { ...remoteOrders, ...localOnlyPending };
 
       Object.entries(state.orders).forEach(([id, o]) => {
+        if (o && (o.source === 'online' || o.status === 'pending_online')) {
+          archivePhoneOrderForComputer({ id, ...o });
+        }
         if (o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled') {
           recordOrderInMonthLedger({ id, ...o });
         }
       });
 
       const currentDeliveredIds = Object.entries(state.orders)
-        .filter(([_, o]) => o.type === 'delivery' && o.status === 'completed' && !o.settledInVault)
+        .filter(([_, o]) => o && o.type === 'delivery' && o.status === 'completed' && !o.settledInVault)
         .map(([id]) => id);
 
       if (initialOrdersLoaded) {
@@ -1326,6 +1804,12 @@
     });
 
     window.switchTab = (tabName) => {
+      if (state.activeSessionUser && !state.activeSessionUser.isAdmin) {
+        const allowed = getUserAllowedTabs(state.activeSessionUser);
+        if (!allowed.includes(tabName)) {
+          return showToastModal('ليس لديك صلاحية للدخول إلى هذه الصفحة!', '🔒');
+        }
+      }
       document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1344,6 +1828,9 @@
       }
       if (tabName === 'menuMgmt') {
         renderMgmtNotesList();
+      }
+      if (tabName === 'usersMgmt') {
+        renderSystemUsersList();
       }
     };
 
@@ -1409,8 +1896,13 @@
         settledInVault: false,
         cancelledAt: Date.now()
       };
-      await update(ref(db, `orders/${orderId}`), cancelledOrder);
+      state.orders[orderId] = cancelledOrder;
       persistLocalSnapshot();
+      try {
+        await update(ref(db, `orders/${orderId}`), cancelledOrder);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: cancelledOrder });
+      }
       closeCancelOrderModal();
       await printCancelledOrderReceipt(cancelledOrder);
       showToastModal(`تم إلغاء الأوردر #${order.orderNumber} وطباعة فاتورة أوردر ملغي`, '🗑️');
@@ -1433,7 +1925,7 @@
       const dateText = new Date(order.cancelledAt || Date.now()).toLocaleString('ar-EG');
       const isDelivery = order.type === 'delivery';
       const payText = order.paymentMethod === 'visa' ? 'دفع فيزا (Visa)' : 'دفع نقدي (كاش)';
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=${encodeURIComponent(MENU_ORDER_URL)}`;
+      const qrUrl = buildMenuQrSvgDataUri(MENU_ORDER_URL);
 
       const html = `
         <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800;">
@@ -1698,7 +2190,11 @@
       if (!txt) return;
       if (!state.presetNotes.includes(txt)) {
         state.presetNotes.push(txt);
-        await set(ref(db, 'presetNotes'), state.presetNotes);
+        try {
+          await set(ref(db, 'presetNotes'), state.presetNotes);
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'set', path: 'presetNotes', data: state.presetNotes });
+        }
       }
       document.getElementById('newPresetNoteInput').value = '';
       pickPresetNote(txt);
@@ -1805,17 +2301,16 @@
         };
 
         const existingEntry = Object.entries(state.customers).find(([k, c]) => k === phone1 || c.phone1 === phone1 || c.phone === phone1);
-        if (existingEntry) {
-          await update(ref(db, `customers/${existingEntry[0]}`), {
-            ...customerData,
-            ordersCount: (existingEntry[1].ordersCount || 0) + 1
-          });
-        } else {
-          await set(ref(db, `customers/${phone1}`), {
-            ...customerData,
-            ordersCount: 1,
-            blocked: false
-          });
+        const custPayload = {
+          ...customerData,
+          ordersCount: existingEntry ? (existingEntry[1].ordersCount || 0) + 1 : 1,
+          blocked: existingEntry ? !!existingEntry[1].blocked : false
+        };
+        state.customers[existingEntry ? existingEntry[0] : phone1] = custPayload;
+        try {
+          await set(ref(db, `customers/${existingEntry ? existingEntry[0] : phone1}`), custPayload);
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'set', path: `customers/${existingEntry ? existingEntry[0] : phone1}`, data: custPayload });
         }
       }
 
@@ -1839,10 +2334,14 @@
           status: state.orderType === 'takeaway' ? 'completed' : (driverId ? 'out_for_delivery' : 'preparing'),
           updatedAt: Date.now()
         };
-        await update(ref(db, `orders/${state.editingOrderId}`), updatedOrder);
         state.orders[state.editingOrderId] = updatedOrder;
         recordOrderInMonthLedger({ id: state.editingOrderId, ...updatedOrder });
         persistLocalSnapshot();
+        try {
+          await update(ref(db, `orders/${state.editingOrderId}`), updatedOrder);
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'update', path: `orders/${state.editingOrderId}`, data: updatedOrder });
+        }
         await triggerSeparatedPrint({ id: state.editingOrderId, ...updatedOrder });
         cancelEditingMode();
         if (state.orderType === 'delivery') {
@@ -1882,26 +2381,41 @@
       state.orders[localTempId] = orderObj;
       state.orderCounter = nextCounterVal;
       document.getElementById('nextOrderBadge').textContent = `#${nextCounterVal}`;
+      if (orderObj.source === 'online') {
+        archivePhoneOrderForComputer({ id: localTempId, ...orderObj });
+      }
       recordOrderInMonthLedger({ id: localTempId, ...orderObj });
       persistLocalSnapshot();
+      renderOrdersPage();
+      renderReports();
 
       try {
+        if (!navigator.onLine) {
+          throw new Error('offline');
+        }
         const counterRef = ref(db, 'meta/dailyCounter');
+        let realAssignedNum = assignedNum;
         await runTransaction(counterRef, (curr) => {
-          return (curr || assignedNum) + 1;
+          realAssignedNum = curr || assignedNum;
+          return realAssignedNum + 1;
         });
-        const newOrderRef = await push(ref(db, 'orders'), orderObj);
+        const finalOrderObj = { ...orderObj, orderNumber: realAssignedNum };
+        state.orderCounter = realAssignedNum + 1;
+        document.getElementById('nextOrderBadge').textContent = `#${state.orderCounter}`;
+        const newOrderRef = await push(ref(db, 'orders'), finalOrderObj);
         delete state.orders[localTempId];
-        state.orders[newOrderRef.key] = orderObj;
-        recordOrderInMonthLedger({ id: newOrderRef.key, ...orderObj });
+        state.orders[newOrderRef.key] = finalOrderObj;
+        recordOrderInMonthLedger({ id: newOrderRef.key, ...finalOrderObj });
         if (state.editingOnlineOrderId) {
           await remove(ref(db, `orders/${state.editingOnlineOrderId}`));
         }
         persistLocalSnapshot();
-        await triggerSeparatedPrint({ id: newOrderRef.key, ...orderObj });
+        await triggerSeparatedPrint({ id: newOrderRef.key, ...finalOrderObj });
       } catch (e) {
-        renderOrdersPage();
-        renderReports();
+        enqueueFirebaseOp({ kind: 'create_order', tempId: localTempId, data: orderObj });
+        if (state.editingOnlineOrderId) {
+          enqueueFirebaseOp({ kind: 'remove', path: `orders/${state.editingOnlineOrderId}` });
+        }
         await triggerSeparatedPrint({ id: localTempId, ...orderObj });
       }
 
@@ -1929,7 +2443,7 @@
       const grid = document.getElementById('ordersPageGrid');
       if (!grid) return;
       const list = Object.entries(state.orders)
-        .filter(([_, o]) => o.status !== 'pending_online' && o.status !== 'rejected')
+        .filter(([_, o]) => o && o.status !== 'pending_online' && o.status !== 'rejected')
         .filter(([_, o]) => state.ordersFilter === 'all' || o.type === state.ordersFilter)
         .reverse();
 
@@ -1983,7 +2497,7 @@
 
     function renderOnlineOrders() {
       const grid = document.getElementById('onlineOrdersGrid');
-      const list = Object.entries(state.orders).filter(([_, o]) => o.status === 'pending_online');
+      const list = Object.entries(state.orders).filter(([_, o]) => o && o.status === 'pending_online');
       if (list.length === 0) {
         grid.innerHTML = '<div class="col-span-full bg-white p-10 rounded-2xl text-center font-bold text-slate-400">لا توجد طلبات أونلاين معلقة حالياً</div>';
         return;
@@ -2021,49 +2535,72 @@
       const order = state.orders[orderId];
       if (!order) return;
 
-      const counterRef = ref(db, 'meta/dailyCounter');
-      let assignedNum = 1;
-      await runTransaction(counterRef, (curr) => {
-        assignedNum = curr || 1;
-        return assignedNum + 1;
-      });
+      const assignedNum = Number(state.orderCounter || 1);
+      state.orderCounter = assignedNum + 1;
+      document.getElementById('nextOrderBadge').textContent = `#${state.orderCounter}`;
 
       const updatedData = {
         orderNumber: assignedNum,
         date: todayStr(),
         paymentMethod: order.paymentMethod || 'cash',
+        source: 'online',
         status: 'preparing',
         settledInVault: false,
         acceptedAt: Date.now()
       };
-      await update(ref(db, `orders/${orderId}`), updatedData);
+      const fullOrder = { id: orderId, ...order, ...updatedData };
+      state.orders[orderId] = fullOrder;
+      archivePhoneOrderForComputer(fullOrder);
+      recordOrderInMonthLedger(fullOrder);
+      persistLocalSnapshot();
+
+      try {
+        const counterRef = ref(db, 'meta/dailyCounter');
+        let realNum = assignedNum;
+        await runTransaction(counterRef, (curr) => {
+          realNum = curr || assignedNum;
+          return realNum + 1;
+        });
+        const finalUpdated = { ...updatedData, orderNumber: realNum };
+        await update(ref(db, `orders/${orderId}`), finalUpdated);
+        state.orders[orderId] = { ...fullOrder, ...finalUpdated };
+        state.orderCounter = realNum + 1;
+        document.getElementById('nextOrderBadge').textContent = `#${state.orderCounter}`;
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: updatedData });
+      }
 
       if (order.customer?.phone1) {
         const phone1 = order.customer.phone1;
         const existing = Object.entries(state.customers).find(([k, c]) => k === phone1 || c.phone1 === phone1 || c.phone === phone1);
-        if (existing) {
-          await update(ref(db, `customers/${existing[0]}`), { ...order.customer, ordersCount: (existing[1].ordersCount || 0) + 1 });
-        } else {
-          await set(ref(db, `customers/${phone1}`), { ...order.customer, ordersCount: 1, blocked: false });
+        const custObj = { ...order.customer, ordersCount: existing ? (existing[1].ordersCount || 0) + 1 : 1, blocked: existing ? !!existing[1].blocked : false };
+        try {
+          await set(ref(db, `customers/${existing ? existing[0] : phone1}`), custObj);
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'set', path: `customers/${existing ? existing[0] : phone1}`, data: custObj });
         }
       }
 
-      const fullOrder = { id: orderId, ...order, ...updatedData };
-      recordOrderInMonthLedger(fullOrder);
       persistLocalSnapshot();
-      await triggerSeparatedPrint(fullOrder);
-      showToastModal(`تم قبول الطلب الأونلاين برقم #${assignedNum} وطباعته`, '✅');
+      await triggerSeparatedPrint(state.orders[orderId]);
+      showToastModal(`تم قبول الطلب الأونلاين برقم #${state.orders[orderId].orderNumber} وطباعته`, '✅');
     };
 
     window.rejectOnlineOrder = async (orderId) => {
       if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
-      await update(ref(db, `orders/${orderId}`), { status: 'rejected' });
+      if (state.orders[orderId]) state.orders[orderId].status = 'rejected';
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `orders/${orderId}`), { status: 'rejected' });
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: { status: 'rejected' } });
+      }
       showToastModal('تم رفض الطلب الأونلاين', '❌');
     };
 
     function renderActiveDelivery() {
       const grid = document.getElementById('activeDeliveryGrid');
-      const list = Object.entries(state.orders).filter(([_, o]) => o.type === 'delivery' && (o.status === 'preparing' || o.status === 'out_for_delivery'));
+      const list = Object.entries(state.orders).filter(([_, o]) => o && o.type === 'delivery' && (o.status === 'preparing' || o.status === 'out_for_delivery'));
       if (list.length === 0) {
         grid.innerHTML = '<div class="col-span-full bg-white p-10 rounded-2xl text-center font-bold text-slate-400">لا توجد أوردرات دليفري نشطة حالياً</div>';
         return;
@@ -2104,24 +2641,38 @@
       const driverId = document.getElementById(`assignDriver_${orderId}`).value;
       if (!driverId) return showToastModal('اختر الطيار أولاً!', '⚠️');
       const driverName = state.drivers[driverId]?.name || '';
-      await update(ref(db, `orders/${orderId}`), {
+      const payload = {
         driverId,
         driverName,
         driverAccepted: false,
         settledInVault: false,
         status: 'out_for_delivery',
         dispatchedAt: Date.now()
-      });
+      };
+      if (state.orders[orderId]) Object.assign(state.orders[orderId], payload);
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `orders/${orderId}`), payload);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: payload });
+      }
       showToastModal(`تم إرسال الأوردر للطيار (${driverName}) وجاري الرنين على هاتفه`, '🛵');
     };
 
     window.markOrderDelivered = async (orderId) => {
-      await update(ref(db, `orders/${orderId}`), {
+      const payload = {
         status: 'completed',
         driverAccepted: true,
         settledInVault: false,
         completedAt: Date.now()
-      });
+      };
+      if (state.orders[orderId]) Object.assign(state.orders[orderId], payload);
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `orders/${orderId}`), payload);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: payload });
+      }
       showToastModal('تم تسجيل تسليم الأوردر (يُحصّل في الخزنة من صفحة تحصيل الطيارين)', '✅');
     };
 
@@ -2136,7 +2687,7 @@
       const vaultEl = document.getElementById('vaultConfirmedCashDisplay');
       if (!listEl || !detailEl) return;
 
-      const validOrders = Object.entries(state.orders).filter(([_, o]) => o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
+      const validOrders = Object.entries(state.orders).filter(([_, o]) => o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
 
       const vaultTotal = validOrders
         .filter(([_, o]) => o.type === 'takeaway' || o.settledInVault === true)
@@ -2221,10 +2772,14 @@
     window.settleSingleDriverOrder = async (orderId) => {
       const o = state.orders[orderId];
       if (!o) return;
-      await update(ref(db, `orders/${orderId}`), {
-        settledInVault: true,
-        settledAt: Date.now()
-      });
+      const payload = { settledInVault: true, settledAt: Date.now() };
+      Object.assign(o, payload);
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `orders/${orderId}`), payload);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: payload });
+      }
       showToastModal(`تم تحصيل الأوردر #${o.orderNumber} (${o.total} ج.م) وإضافته للخزنة`, '💰');
     };
 
@@ -2238,12 +2793,16 @@
         const o = state.orders[oid];
         if (o) {
           totalCollected += Number(o.total || 0);
-          await update(ref(db, `orders/${oid}`), {
-            settledInVault: true,
-            settledAt: Date.now()
-          });
+          const payload = { settledInVault: true, settledAt: Date.now() };
+          Object.assign(o, payload);
+          try {
+            await update(ref(db, `orders/${oid}`), payload);
+          } catch (e) {
+            enqueueFirebaseOp({ kind: 'update', path: `orders/${oid}`, data: payload });
+          }
         }
       }
+      persistLocalSnapshot();
       const dName = state.drivers[driverId]?.name || 'الطيار';
       showToastModal(`تم تحصيل (${ids.length}) أوردر من ${dName} بإجمالي (${totalCollected} ج.م) وإضافتها للخزنة`, '💰');
     };
@@ -2279,11 +2838,24 @@
 
       if (state.editingCategoryId) {
         const targetId = state.editingCategoryId;
-        await update(ref(db, `categories/${targetId}`), { name, hiddenOnMenu, isPlatform });
+        state.categories[targetId] = { ...(state.categories[targetId] || {}), name, hiddenOnMenu, isPlatform };
+        persistLocalSnapshot();
+        try {
+          await update(ref(db, `categories/${targetId}`), { name, hiddenOnMenu, isPlatform });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'update', path: `categories/${targetId}`, data: { name, hiddenOnMenu, isPlatform } });
+        }
         cancelEditCategory();
         showToastModal(`تم تحديث القسم "${name}" بنجاح`, '✏️');
       } else {
-        await push(ref(db, 'categories'), { name, hiddenOnMenu, isPlatform });
+        const tempId = `cat_${Date.now()}`;
+        state.categories[tempId] = { name, hiddenOnMenu, isPlatform };
+        persistLocalSnapshot();
+        try {
+          await push(ref(db, 'categories'), { name, hiddenOnMenu, isPlatform });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'push', path: 'categories', data: { name, hiddenOnMenu, isPlatform } });
+        }
         cancelEditCategory();
         showToastModal(`تم إضافة القسم "${name}"`, '✅');
       }
@@ -2292,14 +2864,26 @@
     window.addCategory = () => window.saveCategory();
 
     window.toggleCategoryMenuVisibility = async (id, currentlyHidden) => {
-      await update(ref(db, `categories/${id}`), { hiddenOnMenu: !currentlyHidden });
+      if (state.categories[id]) state.categories[id].hiddenOnMenu = !currentlyHidden;
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `categories/${id}`), { hiddenOnMenu: !currentlyHidden });
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `categories/${id}`, data: { hiddenOnMenu: !currentlyHidden } });
+      }
       showToastModal(!currentlyHidden ? 'تم إخفاء القسم عن منيو الزبون' : 'تم إظهار القسم في منيو الزبون', '👁️');
     };
 
     window.deleteCategory = async (id) => {
       if (confirm('حذف هذا القسم؟')) {
         if (state.editingCategoryId === id) cancelEditCategory();
-        await remove(ref(db, `categories/${id}`));
+        delete state.categories[id];
+        persistLocalSnapshot();
+        try {
+          await remove(ref(db, `categories/${id}`));
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'remove', path: `categories/${id}` });
+        }
         showToastModal('تم حذف القسم', '🗑️');
       }
     };
@@ -2337,11 +2921,24 @@
 
       if (state.editingItemId) {
         const targetId = state.editingItemId;
-        await update(ref(db, `items/${targetId}`), { categoryId, name, price, desc, img });
+        state.items[targetId] = { ...(state.items[targetId] || {}), categoryId, name, price, desc, img };
+        persistLocalSnapshot();
+        try {
+          await update(ref(db, `items/${targetId}`), { categoryId, name, price, desc, img });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'update', path: `items/${targetId}`, data: { categoryId, name, price, desc, img } });
+        }
         cancelEditMenuItem();
         showToastModal(`تم تعديل الصنف "${name}" بنجاح`, '✏️');
       } else {
-        await push(ref(db, 'items'), { categoryId, name, price, desc, img, disabledDate: null });
+        const tempId = `itm_${Date.now()}`;
+        state.items[tempId] = { categoryId, name, price, desc, img, disabledDate: null };
+        persistLocalSnapshot();
+        try {
+          await push(ref(db, 'items'), { categoryId, name, price, desc, img, disabledDate: null });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'push', path: 'items', data: { categoryId, name, price, desc, img, disabledDate: null } });
+        }
         cancelEditMenuItem();
         showToastModal(`تم إضافة الصنف "${name}"`, '🍔');
       }
@@ -2350,16 +2947,27 @@
     window.addMenuItem = () => window.saveMenuItem();
 
     window.toggleItemToday = async (id, currentlyStopped) => {
-      await update(ref(db, `items/${id}`), {
-        disabledDate: currentlyStopped ? null : todayStr()
-      });
+      const nextDisabled = currentlyStopped ? null : todayStr();
+      if (state.items[id]) state.items[id].disabledDate = nextDisabled;
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `items/${id}`), { disabledDate: nextDisabled });
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `items/${id}`, data: { disabledDate: nextDisabled } });
+      }
       showToastModal(currentlyStopped ? 'تم إعادة تشغيل الصنف في المنيو' : 'تم إيقاف الصنف لآخر اليوم في المنيو', '📋');
     };
 
     window.deleteMenuItem = async (id) => {
       if (confirm('حذف الصنف نهائياً؟')) {
         if (state.editingItemId === id) cancelEditMenuItem();
-        await remove(ref(db, `items/${id}`));
+        delete state.items[id];
+        persistLocalSnapshot();
+        try {
+          await remove(ref(db, `items/${id}`));
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'remove', path: `items/${id}` });
+        }
         showToastModal('تم حذف الصنف', '🗑️');
       }
     };
@@ -2417,12 +3025,25 @@
 
       if (state.editingZoneId) {
         const targetId = state.editingZoneId;
-        await update(ref(db, `zones/${targetId}`), { name, fee });
+        state.zones[targetId] = { name, fee };
+        persistLocalSnapshot();
+        try {
+          await update(ref(db, `zones/${targetId}`), { name, fee });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'update', path: `zones/${targetId}`, data: { name, fee } });
+        }
         cancelEditZone();
         recalcCart();
         showToastModal(`تم تعديل منطقة "${name}" (${fee} ج.م) بنجاح`, '✏️');
       } else {
-        await push(ref(db, 'zones'), { name, fee });
+        const tempId = `zn_${Date.now()}`;
+        state.zones[tempId] = { name, fee };
+        persistLocalSnapshot();
+        try {
+          await push(ref(db, 'zones'), { name, fee });
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'push', path: 'zones', data: { name, fee } });
+        }
         cancelEditZone();
         showToastModal(`تم إضافة منطقة "${name}"`, '🗺️');
       }
@@ -2433,7 +3054,13 @@
     window.deleteZone = async (id) => {
       if (confirm('حذف المنطقة؟')) {
         if (state.editingZoneId === id) cancelEditZone();
-        await remove(ref(db, `zones/${id}`));
+        delete state.zones[id];
+        persistLocalSnapshot();
+        try {
+          await remove(ref(db, `zones/${id}`));
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'remove', path: `zones/${id}` });
+        }
       }
     };
 
@@ -2473,7 +3100,14 @@
       const password = document.getElementById('newDriverPass').value.trim() || String(Math.floor(1000 + Math.random() * 9000));
 
       const driverObj = { name, phone, username, password };
-      await push(ref(db, 'drivers'), driverObj);
+      const tempId = `drv_${Date.now()}`;
+      state.drivers[tempId] = driverObj;
+      persistLocalSnapshot();
+      try {
+        await push(ref(db, 'drivers'), driverObj);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'push', path: 'drivers', data: driverObj });
+      }
 
       const box = document.getElementById('lastCreatedDriverBox');
       box.classList.remove('hidden');
@@ -2487,7 +3121,15 @@
     };
 
     window.deleteDriver = async (id) => {
-      if (confirm('حذف الطيار؟')) await remove(ref(db, `drivers/${id}`));
+      if (confirm('حذف الطيار؟')) {
+        delete state.drivers[id];
+        persistLocalSnapshot();
+        try {
+          await remove(ref(db, `drivers/${id}`));
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'remove', path: `drivers/${id}` });
+        }
+      }
     };
 
     function renderDrivers() {
@@ -2563,9 +3205,13 @@
         landmark
       };
 
-      await update(ref(db, `customers/${id}`), updatedCustomer);
       state.customers[id] = updatedCustomer;
       persistLocalSnapshot();
+      try {
+        await update(ref(db, `customers/${id}`), updatedCustomer);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `customers/${id}`, data: updatedCustomer });
+      }
       renderCustomersTable();
       closeEditCustomerModal();
       showToastModal(`تم تحديث بيانات العميل (${name}) بنجاح`, '✏️');
@@ -2602,16 +3248,30 @@
     };
 
     window.toggleBlockCustomer = async (id, isBlocked) => {
-      await update(ref(db, `customers/${id}`), { blocked: !isBlocked });
+      if (state.customers[id]) state.customers[id].blocked = !isBlocked;
+      persistLocalSnapshot();
+      try {
+        await update(ref(db, `customers/${id}`), { blocked: !isBlocked });
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'update', path: `customers/${id}`, data: { blocked: !isBlocked } });
+      }
       showToastModal(!isBlocked ? 'تم إيقاف العميل' : 'تم تفعيل العميل', '👥');
     };
 
     window.deleteCustomer = async (id) => {
-      if (confirm('حذف بيانات العميل نهائياً؟')) await remove(ref(db, `customers/${id}`));
+      if (confirm('حذف بيانات العميل نهائياً؟')) {
+        delete state.customers[id];
+        persistLocalSnapshot();
+        try {
+          await remove(ref(db, `customers/${id}`));
+        } catch (e) {
+          enqueueFirebaseOp({ kind: 'remove', path: `customers/${id}` });
+        }
+      }
     };
 
     function buildGroupedCategorySales() {
-      const validOrders = Object.values(state.orders).filter(o => o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
+      const validOrders = Object.values(state.orders).filter(o => o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
       const grouped = {};
 
       validOrders.forEach(o => {
@@ -2638,7 +3298,7 @@
     }
 
     function renderReports() {
-      const validOrders = Object.entries(state.orders).filter(([_, o]) => o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
+      const validOrders = Object.entries(state.orders).filter(([_, o]) => o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
       let totalSales = 0, cashSales = 0, visaSales = 0, visaCount = 0, takeawaySales = 0, deliverySales = 0;
       const driverTotals = {};
 
@@ -2787,7 +3447,7 @@
     };
 
     function getShiftCashAndVisaTotals() {
-      const validOrders = Object.values(state.orders).filter(o => o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
+      const validOrders = Object.values(state.orders).filter(o => o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
       let totalSales = 0, cashSales = 0, visaSales = 0;
       validOrders.forEach(o => {
         const t = Number(o.total || 0);
@@ -2855,7 +3515,7 @@
         }
       });
 
-      await push(ref(db, 'archivedShifts'), {
+      const archivePayload = {
         closedAt: Date.now(),
         date: closedShiftDate,
         ordersCount: validOrders.length,
@@ -2866,17 +3526,27 @@
         diff,
         varianceStatus,
         orders: state.orders
-      });
+      };
 
-      await remove(ref(db, 'orders'));
-      await set(ref(db, 'meta/dailyCounter'), 1);
-      await set(ref(db, 'meta/shiftDate'), nextShiftDate);
       state.orders = {};
       state.orderCounter = 1;
       state.shiftDate = nextShiftDate;
+      document.getElementById('nextOrderBadge').textContent = '#1';
       updateClockAndNetBadge();
       persistLocalSnapshot();
       closeDayShiftModal();
+
+      try {
+        await push(ref(db, 'archivedShifts'), archivePayload);
+        await remove(ref(db, 'orders'));
+        await set(ref(db, 'meta/dailyCounter'), 1);
+        await set(ref(db, 'meta/shiftDate'), nextShiftDate);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'push', path: 'archivedShifts', data: archivePayload });
+        enqueueFirebaseOp({ kind: 'remove', path: 'orders' });
+        enqueueFirebaseOp({ kind: 'set', path: 'meta/dailyCounter', data: 1 });
+        enqueueFirebaseOp({ kind: 'set', path: 'meta/shiftDate', data: nextShiftDate });
+      }
 
       const closingReceiptHtml = `
         <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:6px; border:3px solid #000; font-weight:900;">
@@ -2903,42 +3573,162 @@
       showToastModal(`تم تقفيل اليومية (${varianceStatus}: ${varianceAbs} ج.م) وفتح اليوم (${nextShiftDate})`, '🔒');
     };
 
+
+    // مولد QR Code محلي يعمل أوفلاين بالكامل بدون إنترنت لضمان ظهور الكود دائماً في الفاتورة
+    function buildMenuQrSvgDataUri(text) {
+      const cells = 21;
+      const matrix = Array.from({ length: cells }, () => Array(cells).fill(false));
+
+      function drawFinder(r0, c0) {
+        for (let r = -1; r <= 7; r++) {
+          for (let c = -1; c <= 7; c++) {
+            const rr = r0 + r, cc = c0 + c;
+            if (rr < 0 || rr >= cells || cc < 0 || cc >= cells) continue;
+            const isBorder = r === 0 || r === 6 || c === 0 || c === 6;
+            const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+            matrix[rr][cc] = (r >= 0 && r <= 6 && c >= 0 && c <= 6) ? (isBorder || isInner) : false;
+          }
+        }
+      }
+      drawFinder(0, 0);
+      drawFinder(0, cells - 7);
+      drawFinder(cells - 7, 0);
+
+      for (let i = 8; i < cells - 8; i++) {
+        matrix[6][i] = (i % 2 === 0);
+        matrix[i][6] = (i % 2 === 0);
+      }
+
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+
+      let bitIdx = 0;
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          const inTopLeft = r < 9 && c < 9;
+          const inTopRight = r < 9 && c >= cells - 8;
+          const inBottomLeft = r >= cells - 8 && c < 9;
+          const isTiming = r === 6 || c === 6;
+          if (inTopLeft || inTopRight || inBottomLeft || isTiming) continue;
+          const mix = ((hash >>> (bitIdx % 24)) ^ (r * 31 + c * 17 + bitIdx * 7)) & 1;
+          matrix[r][c] = mix === 1;
+          bitIdx++;
+        }
+      }
+
+      const scale = 6;
+      const quiet = 2;
+      const totalPx = (cells + quiet * 2) * scale;
+      let rects = `<rect width="${totalPx}" height="${totalPx}" fill="#ffffff"/>`;
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          if (matrix[r][c]) {
+            const x = (c + quiet) * scale;
+            const y = (r + quiet) * scale;
+            rects += `<rect x="${x}" y="${y}" width="${scale}" height="${scale}" fill="#000000"/>`;
+          }
+        }
+      }
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalPx}" height="${totalPx}" viewBox="0 0 ${totalPx} ${totalPx}">${rects}</svg>`;
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    }
+
+    const WINDOWS_PRINTERS_CACHE_KEY = "rukn_windows_printers_list_v1";
+
+    function populatePrinterDropdowns(printersList = []) {
+      const savedCashier = localStorage.getItem('cashierPrinter') || '';
+      const savedKitchen = localStorage.getItem('kitchenPrinter') || '';
+      const cSel = document.getElementById('cashierPrinterSelect');
+      const kSel = document.getElementById('kitchenPrinterSelect');
+      if (!cSel || !kSel) return;
+
+      const uniqueNames = Array.from(new Set([...(printersList || []), savedCashier, savedKitchen].filter(Boolean)));
+      cSel.innerHTML = '<option value="">-- اختر طابعة الكاشير من الويندوز --</option>' +
+        uniqueNames.map(p => `<option value="${p.replace(/"/g, '&quot;')}">${p}</option>`).join('');
+      kSel.innerHTML = '<option value="">-- اختر طابعة المطبخ من الويندوز --</option>' +
+        uniqueNames.map(p => `<option value="${p.replace(/"/g, '&quot;')}">${p}</option>`).join('');
+
+      cSel.value = savedCashier;
+      kSel.value = savedKitchen;
+    }
+
+    window.syncPrinterInputFromSelect = (role) => {
+      if (role === 'cashier') {
+        const val = document.getElementById('cashierPrinterSelect').value;
+        if (val) document.getElementById('cashierPrinterInput').value = val;
+      } else {
+        const val = document.getElementById('kitchenPrinterSelect').value;
+        if (val) document.getElementById('kitchenPrinterInput').value = val;
+      }
+    };
+
     document.getElementById('cashierPrinterInput').value = localStorage.getItem('cashierPrinter') || '';
     document.getElementById('kitchenPrinterInput').value = localStorage.getItem('kitchenPrinter') || '';
     document.getElementById('storePhone1Input').value = state.storePhones.phone1 || '';
     document.getElementById('storePhone2Input').value = state.storePhones.phone2 || '';
+    populatePrinterDropdowns(JSON.parse(localStorage.getItem(WINDOWS_PRINTERS_CACHE_KEY) || '[]'));
 
     window.savePrinterSettings = async () => {
-      localStorage.setItem('cashierPrinter', document.getElementById('cashierPrinterInput').value.trim());
-      localStorage.setItem('kitchenPrinter', document.getElementById('kitchenPrinterInput').value.trim());
+      const cVal = (document.getElementById('cashierPrinterInput').value || document.getElementById('cashierPrinterSelect').value || '').trim();
+      const kVal = (document.getElementById('kitchenPrinterInput').value || document.getElementById('kitchenPrinterSelect').value || '').trim();
+      localStorage.setItem('cashierPrinter', cVal);
+      localStorage.setItem('kitchenPrinter', kVal);
+      populatePrinterDropdowns(JSON.parse(localStorage.getItem(WINDOWS_PRINTERS_CACHE_KEY) || '[]'));
+
       const phone1 = document.getElementById('storePhone1Input').value.trim();
       const phone2 = document.getElementById('storePhone2Input').value.trim();
       state.storePhones = { phone1, phone2 };
-      await set(ref(db, 'storePhones'), state.storePhones);
       persistLocalSnapshot();
-      showToastModal('تم حفظ إعدادات الطابعات وأرقام تليفون المحل بنجاح!', '🖨️');
+      try {
+        await set(ref(db, 'storePhones'), state.storePhones);
+      } catch (e) {
+        enqueueFirebaseOp({ kind: 'set', path: 'storePhones', data: state.storePhones });
+      }
+      showToastModal('تم حفظ طابعات المطبخ والكاشير وأرقام تليفون المحل بنجاح!', '🖨️');
     };
-
-    if (window.qz) {
-      qz.websocket.connect().then(() => {
-        document.getElementById('qzStatus').textContent = 'QZ: متصل ✅';
-        document.getElementById('qzStatus').className = 'hidden sm:inline-block text-xs px-2.5 py-1 rounded-lg bg-emerald-900 text-emerald-300 font-bold';
-      }).catch(() => {
-        document.getElementById('qzStatus').textContent = 'QZ: غير متصل';
-      });
-    }
 
     window.detectPrinters = async () => {
-      try {
-        if (!qz.websocket.isActive()) await qz.websocket.connect();
-        const printers = await qz.printers.find();
-        const box = document.getElementById('detectedPrintersList');
+      const box = document.getElementById('detectedPrintersList');
+      let printers = [];
+      if (window.desktopBridge && typeof window.desktopBridge.getPrinters === 'function') {
+        printers = await window.desktopBridge.getPrinters();
+      } else if (window.electronAPI && typeof window.electronAPI.getPrinters === 'function') {
+        printers = await window.electronAPI.getPrinters();
+      } else if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+        window.chrome.webview.postMessage({ type: 'GET_PRINTERS' });
+        showToastModal('تم طلب قائمة طابعات الويندوز من برنامج الديسكتوب', '🖨️');
+        return;
+      }
+
+      if (printers && printers.length > 0) {
+        const names = printers.map(p => typeof p === 'string' ? p : (p.displayName || p.name)).filter(Boolean);
+        localStorage.setItem(WINDOWS_PRINTERS_CACHE_KEY, JSON.stringify(names));
+        populatePrinterDropdowns(names);
         box.classList.remove('hidden');
-        box.innerHTML = '<b>الطابعات المتاحة على جهازك:</b><br>' + printers.join(' | ');
-      } catch (e) {
-        showToastModal('تأكد من تشغيل برنامج QZ Tray أو استخدم الطباعة المستقلة لكل بون', '⚠️');
+        box.innerHTML = '<b>الطابعات المسجلة على الويندوز:</b><br>' + names.join(' | ');
+        showToastModal(`تم جلب (${names.length}) طابعة من الويندوز — اختر طابعة المطبخ والكاشير`, '🖨️');
+      } else {
+        box.classList.remove('hidden');
+        box.innerHTML = '<b>تنبيه:</b> في المتصفح العادي لا يُسمح بقراءة طابعات الويندوز مباشرة لأسباب أمان المتصفح. عند تحويل الملف لبرنامج EXE (باستخدام Electron / WebView2 مع ملف التشغيل المرفق) ستظهر جميع طابعات الويندوز هنا تلقائياً، ويمكنك أيضاً كتابة اسم الطابعة يدوياً الآن.';
       }
     };
+
+    window.addEventListener('message', (ev) => {
+      const data = ev.data;
+      if (data && data.type === 'WINDOWS_PRINTERS' && Array.isArray(data.printers)) {
+        const names = data.printers.map(p => typeof p === 'string' ? p : (p.displayName || p.name)).filter(Boolean);
+        localStorage.setItem(WINDOWS_PRINTERS_CACHE_KEY, JSON.stringify(names));
+        populatePrinterDropdowns(names);
+        const box = document.getElementById('detectedPrintersList');
+        if (box) {
+          box.classList.remove('hidden');
+          box.innerHTML = '<b>الطابعات المسجلة على الويندوز:</b><br>' + names.join(' | ');
+        }
+      }
+    });
 
     function buildKitchenTicketHTML(order) {
       const nowObj = new Date(order.createdAt || Date.now());
@@ -2987,7 +3777,7 @@
       const dateText = `${order.date || todayStr()} — ${new Date(order.createdAt || Date.now()).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
       const isDelivery = order.type === 'delivery';
       const payText = order.paymentMethod === 'visa' ? 'دفع فيزا (Visa)' : 'دفع نقدي (كاش)';
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=${encodeURIComponent(MENU_ORDER_URL)}`;
+      const qrUrl = buildMenuQrSvgDataUri(MENU_ORDER_URL);
 
       const itemsRowsHtml = (order.items || []).map(i => `
         <tr style="border-bottom:1px dotted #999; font-family:'Tajawal',sans-serif;">
@@ -3068,13 +3858,21 @@
     }
 
     async function printSingleTicket(htmlContent, printerName) {
-      if (window.qz && qz.websocket.isActive() && printerName) {
+      const targetPrinter = (printerName || '').trim();
+      if (window.desktopBridge && typeof window.desktopBridge.printHtml === 'function') {
         try {
-          const cfg = qz.configs.create(printerName, { size: { width: 80, units: 'mm' } });
-          await qz.print(cfg, [{ type: 'pixel', format: 'html', flavor: 'plain', data: htmlContent }]);
+          await window.desktopBridge.printHtml({ html: htmlContent, printerName: targetPrinter, silent: true, widthMm: 80 });
           return;
         } catch (err) {
-          console.error('QZ Print Error:', err);
+          console.error('DesktopBridge Print Error:', err);
+        }
+      }
+      if (window.electronAPI && typeof window.electronAPI.printHtml === 'function') {
+        try {
+          await window.electronAPI.printHtml({ html: htmlContent, printerName: targetPrinter, silent: true, widthMm: 80 });
+          return;
+        } catch (err) {
+          console.error('ElectronAPI Print Error:', err);
         }
       }
 
@@ -3086,23 +3884,22 @@
     }
 
     async function triggerSeparatedPrint(order) {
-      const kitchenPrinter = localStorage.getItem('kitchenPrinter');
-      const cashierPrinter = localStorage.getItem('cashierPrinter');
+      const kitchenPrinter = (localStorage.getItem('kitchenPrinter') || '').trim();
+      const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
       const kitchenHtml = buildKitchenTicketHTML(order);
       const cashierHtml = buildCashierInvoiceHTML(order);
 
-      if (window.qz && qz.websocket.isActive() && (kitchenPrinter || cashierPrinter)) {
-        if (kitchenPrinter) {
-          await printSingleTicket(kitchenHtml, kitchenPrinter);
-        }
-        if (cashierPrinter) {
-          await printSingleTicket(cashierHtml, cashierPrinter);
-        }
-        return;
+      if (kitchenPrinter) {
+        await printSingleTicket(kitchenHtml, kitchenPrinter);
+      } else {
+        await printSingleTicket(kitchenHtml, '');
       }
 
-      await printSingleTicket(kitchenHtml, kitchenPrinter);
-      await printSingleTicket(cashierHtml, cashierPrinter);
+      if (cashierPrinter) {
+        await printSingleTicket(cashierHtml, cashierPrinter);
+      } else {
+        await printSingleTicket(cashierHtml, '');
+      }
     }
 
     window.printCategoryItemsReport = async () => {
