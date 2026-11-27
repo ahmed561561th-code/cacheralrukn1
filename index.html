@@ -2656,7 +2656,12 @@
       } catch (e) {
         enqueueFirebaseOp({ kind: 'update', path: `orders/${orderId}`, data: payload });
       }
-      showToastModal(`تم إرسال الأوردر للطيار (${driverName}) وجاري الرنين على هاتفه`, '🛵');
+      if (state.orders[orderId]) {
+        const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
+        const cashierHtml = buildCashierInvoiceHTML({ id: orderId, ...state.orders[orderId] });
+        await printSingleTicket(cashierHtml, cashierPrinter);
+      }
+      showToastModal(`تم إرسال الأوردر للطيار (${driverName}) وطباعة الفاتورة`, '🛵');
     };
 
     window.markOrderDelivered = async (orderId) => {
@@ -3433,8 +3438,13 @@
       }
     };
 
-    window.reprintOrderById = (id) => {
-      if (state.orders[id]) triggerSeparatedPrint({ id, ...state.orders[id] });
+    window.reprintOrderById = async (id) => {
+      if (!state.orders[id]) return;
+      const order = { id, ...state.orders[id] };
+      const kitchenPrinter = (localStorage.getItem('kitchenPrinter') || '').trim();
+      const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
+      await printSingleTicket(buildKitchenTicketHTML(order), kitchenPrinter);
+      await printSingleTicket(buildCashierInvoiceHTML(order), cashierPrinter);
     };
 
     window.reprintKitchenOnlyById = async (id) => {
@@ -3573,62 +3583,165 @@
       showToastModal(`تم تقفيل اليومية (${varianceStatus}: ${varianceAbs} ج.م) وفتح اليوم (${nextShiftDate})`, '🔒');
     };
 
-
-    // مولد QR Code محلي يعمل أوفلاين بالكامل بدون إنترنت لضمان ظهور الكود دائماً في الفاتورة
+    // مولد QR Code حقيقي (Version 2 - 25x25 - Error Correction Level L) يعمل أوفلاين بالكامل لفتح الرابط عند المسح بأي هاتف
     function buildMenuQrSvgDataUri(text) {
-      const cells = 21;
-      const matrix = Array.from({ length: cells }, () => Array(cells).fill(false));
+      const size = 25;
+      const modules = Array.from({ length: size }, () => Array(size).fill(null));
+      const isFunction = Array.from({ length: size }, () => Array(size).fill(false));
+
+      function setModule(r, c, dark, fn = true) {
+        if (r >= 0 && r < size && c >= 0 && c < size) {
+          modules[r][c] = dark;
+          if (fn) isFunction[r][c] = true;
+        }
+      }
 
       function drawFinder(r0, c0) {
         for (let r = -1; r <= 7; r++) {
           for (let c = -1; c <= 7; c++) {
-            const rr = r0 + r, cc = c0 + c;
-            if (rr < 0 || rr >= cells || cc < 0 || cc >= cells) continue;
-            const isBorder = r === 0 || r === 6 || c === 0 || c === 6;
-            const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-            matrix[rr][cc] = (r >= 0 && r <= 6 && c >= 0 && c <= 6) ? (isBorder || isInner) : false;
+            const dark = (r >= 0 && r <= 6 && c >= 0 && c <= 6) &&
+              (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4));
+            setModule(r0 + r, c0 + c, dark, true);
           }
         }
       }
+
       drawFinder(0, 0);
-      drawFinder(0, cells - 7);
-      drawFinder(cells - 7, 0);
+      drawFinder(0, size - 7);
+      drawFinder(size - 7, 0);
 
-      for (let i = 8; i < cells - 8; i++) {
-        matrix[6][i] = (i % 2 === 0);
-        matrix[i][6] = (i % 2 === 0);
-      }
-
-      let hash = 2166136261;
-      for (let i = 0; i < text.length; i++) {
-        hash ^= text.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-      }
-
-      let bitIdx = 0;
-      for (let r = 0; r < cells; r++) {
-        for (let c = 0; c < cells; c++) {
-          const inTopLeft = r < 9 && c < 9;
-          const inTopRight = r < 9 && c >= cells - 8;
-          const inBottomLeft = r >= cells - 8 && c < 9;
-          const isTiming = r === 6 || c === 6;
-          if (inTopLeft || inTopRight || inBottomLeft || isTiming) continue;
-          const mix = ((hash >>> (bitIdx % 24)) ^ (r * 31 + c * 17 + bitIdx * 7)) & 1;
-          matrix[r][c] = mix === 1;
-          bitIdx++;
+      // Alignment pattern at (18, 18) for Version 2
+      for (let r = -2; r <= 2; r++) {
+        for (let c = -2; c <= 2; c++) {
+          const dark = Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0);
+          setModule(18 + r, 18 + c, dark, true);
         }
       }
 
-      const scale = 6;
+      // Timing patterns
+      for (let i = 8; i < size - 8; i++) {
+        setModule(6, i, i % 2 === 0, true);
+        setModule(i, 6, i % 2 === 0, true);
+      }
+
+      // Dark module & reserve format info
+      setModule(size - 8, 8, true, true);
+      for (let i = 0; i < 9; i++) {
+        if (!isFunction[8][i]) setModule(8, i, false, true);
+        if (!isFunction[i][8]) setModule(i, 8, false, true);
+      }
+      for (let i = 0; i < 8; i++) {
+        setModule(8, size - 1 - i, false, true);
+        setModule(size - 1 - i, 8, false, true);
+      }
+
+      // Encode Byte Mode data for Version 2-L (34 data codewords, 10 EC codewords)
+      const bytes = Array.from(new TextEncoder().encode(text)).slice(0, 32);
+      const bits = [];
+      const pushBits = (val, len) => {
+        for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1);
+      };
+      pushBits(0b0100, 4); // Byte mode
+      pushBits(bytes.length, 8);
+      for (const b of bytes) pushBits(b, 8);
+      const maxDataBits = 34 * 8;
+      pushBits(0, Math.min(4, maxDataBits - bits.length));
+      while (bits.length % 8 !== 0) bits.push(0);
+      const padBytes = [0xEC, 0x11];
+      let padIdx = 0;
+      while (bits.length < maxDataBits) {
+        pushBits(padBytes[padIdx % 2], 8);
+        padIdx++;
+      }
+
+      const dataCodewords = [];
+      for (let i = 0; i < bits.length; i += 8) {
+        let byteVal = 0;
+        for (let j = 0; j < 8; j++) byteVal = (byteVal << 1) | bits[i + j];
+        dataCodewords.push(byteVal);
+      }
+
+      // GF(256) Reed-Solomon 10 EC codewords
+      const gfExp = new Array(512);
+      const gfLog = new Array(256);
+      let x = 1;
+      for (let i = 0; i < 255; i++) {
+        gfExp[i] = x;
+        gfLog[x] = i;
+        x <<= 1;
+        if (x & 0x100) x ^= 0x11D;
+      }
+      for (let i = 255; i < 512; i++) gfExp[i] = gfExp[i - 255];
+      const gfMul = (a, b) => (a === 0 || b === 0) ? 0 : gfExp[gfLog[a] + gfLog[b]];
+
+      let poly = [1];
+      for (let i = 0; i < 10; i++) {
+        const nextPoly = new Array(poly.length + 1).fill(0);
+        const factor = gfExp[i];
+        for (let j = 0; j < poly.length; j++) {
+          nextPoly[j] ^= poly[j];
+          nextPoly[j + 1] ^= gfMul(poly[j], factor);
+        }
+        poly = nextPoly;
+      }
+
+      const ecCodewords = new Array(10).fill(0);
+      for (const d of dataCodewords) {
+        const coef = d ^ ecCodewords[0];
+        ecCodewords.shift();
+        ecCodewords.push(0);
+        for (let i = 0; i < 10; i++) {
+          ecCodewords[i] ^= gfMul(poly[i + 1], coef);
+        }
+      }
+
+      const allCodewords = [...dataCodewords, ...ecCodewords];
+      const codeBits = [];
+      for (const cw of allCodewords) {
+        for (let i = 7; i >= 0; i--) codeBits.push((cw >>> i) & 1);
+      }
+      while (codeBits.length < 360) codeBits.push(0);
+
+      // Zig-zag placement with mask 0 ((r + c) % 2 === 0)
+      let bitPtr = 0;
+      let upward = true;
+      for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right = 5;
+        for (let step = 0; step < size; step++) {
+          const r = upward ? (size - 1 - step) : step;
+          for (let dx = 0; dx < 2; dx++) {
+            const c = right - dx;
+            if (!isFunction[r][c]) {
+              const bit = bitPtr < codeBits.length ? codeBits[bitPtr++] : 0;
+              const masked = ((r + c) % 2 === 0) ? (bit ^ 1) : bit;
+              modules[r][c] = masked === 1;
+            }
+          }
+        }
+        upward = !upward;
+      }
+
+      // Format info for ECC L (01) + Mask 0 (000) => 0x77C4 (111011111000100)
+      const fmtBits = [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0];
+      for (let i = 0; i <= 5; i++) modules[8][i] = fmtBits[i] === 1;
+      modules[8][7] = fmtBits[6] === 1;
+      modules[8][8] = fmtBits[7] === 1;
+      modules[7][8] = fmtBits[8] === 1;
+      for (let i = 9; i < 15; i++) modules[14 - i][8] = fmtBits[i] === 1;
+
+      for (let i = 0; i < 7; i++) modules[size - 1 - i][8] = fmtBits[i] === 1;
+      for (let i = 7; i < 15; i++) modules[8][size - 15 + i] = fmtBits[i] === 1;
+
+      const scale = 5;
       const quiet = 2;
-      const totalPx = (cells + quiet * 2) * scale;
+      const totalPx = (size + quiet * 2) * scale;
       let rects = `<rect width="${totalPx}" height="${totalPx}" fill="#ffffff"/>`;
-      for (let r = 0; r < cells; r++) {
-        for (let c = 0; c < cells; c++) {
-          if (matrix[r][c]) {
-            const x = (c + quiet) * scale;
-            const y = (r + quiet) * scale;
-            rects += `<rect x="${x}" y="${y}" width="${scale}" height="${scale}" fill="#000000"/>`;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (modules[r][c]) {
+            const px = (c + quiet) * scale;
+            const py = (r + quiet) * scale;
+            rects += `<rect x="${px}" y="${py}" width="${scale}" height="${scale}" fill="#000000"/>`;
           }
         }
       }
@@ -3887,7 +4000,6 @@
       const kitchenPrinter = (localStorage.getItem('kitchenPrinter') || '').trim();
       const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
       const kitchenHtml = buildKitchenTicketHTML(order);
-      const cashierHtml = buildCashierInvoiceHTML(order);
 
       if (kitchenPrinter) {
         await printSingleTicket(kitchenHtml, kitchenPrinter);
@@ -3895,6 +4007,12 @@
         await printSingleTicket(kitchenHtml, '');
       }
 
+      // في أوردرات الدليفري يطبع بون المطبخ فقط، وتُطبع الفاتورة عند إرسال الأوردر للطيار
+      if (order.type === 'delivery') {
+        return;
+      }
+
+      const cashierHtml = buildCashierInvoiceHTML(order);
       if (cashierPrinter) {
         await printSingleTicket(cashierHtml, cashierPrinter);
       } else {
