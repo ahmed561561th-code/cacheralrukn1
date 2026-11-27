@@ -20,12 +20,19 @@
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; font-family: 'Tajawal', sans-serif !important; }
       #printArea {
+        display: block !important;
         position: absolute;
         left: 0;
         top: 0;
         width: 78mm;
         font-family: 'Tajawal', sans-serif !important;
         color: #000;
+      }
+      #printArea img {
+        display: block !important;
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       @page { size: 80mm auto; margin: 1.5mm; }
     }
@@ -2628,11 +2635,13 @@
             </select>
             <button onclick="dispatchDriver('${id}')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-black">إرسال للطيار</button>
           </div>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button onclick='reprintKitchenOnlyById("${id}")' class="bg-orange-500 text-white py-2 rounded-xl text-xs font-black">👨‍🍳 بون تحضير</button>
-            <button onclick="markOrderDelivered('${id}')" class="bg-emerald-600 text-white py-2 rounded-xl text-xs font-black">✅ تم التسليم</button>
-            <button onclick="openCancelOrderModal('${id}')" class="bg-red-600 text-white py-2 rounded-xl text-xs font-black">🗑️ إلغاء</button>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick='reprintKitchenOnlyById("${id}")' class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-xl text-xs font-black">👨‍🍳 طباعة المطبخ</button>
+            <button onclick='reprintInvoiceOnlyById("${id}")' class="bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-xl text-xs font-black">🧾 إعادة طباعة الفاتورة</button>
+            <button onclick="loadOrderIntoPosForEdit('${id}', false)" class="bg-amber-400 hover:bg-amber-500 text-slate-950 py-2 rounded-xl text-xs font-black">✏️ تعديل</button>
+            <button onclick="markOrderDelivered('${id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-black">✅ تم التسليم</button>
           </div>
+          <button onclick="openCancelOrderModal('${id}')" class="w-full bg-red-600 hover:bg-red-700 text-white py-1.5 rounded-xl text-xs font-black">🗑️ إلغاء الأوردر</button>
         </div>
       `).join('');
     }
@@ -3279,11 +3288,39 @@
       const validOrders = Object.values(state.orders).filter(o => o && o.status !== 'pending_online' && o.status !== 'rejected' && o.status !== 'cancelled');
       const grouped = {};
 
+      const itemById = Object.entries(state.items || {});
+      const normalizeText = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+
+      function resolveItemCategoryName(item) {
+        if (item.categoryName && String(item.categoryName).trim()) {
+          const directCat = String(item.categoryName).trim();
+          const matchedEntry = Object.entries(state.categories || {}).find(([_, c]) => c && normalizeText(c.name) === normalizeText(directCat));
+          return matchedEntry ? matchedEntry[1].name : directCat;
+        }
+        if (item.category && String(item.category).trim()) {
+          const directCat = String(item.category).trim();
+          const matchedEntry = Object.entries(state.categories || {}).find(([_, c]) => c && normalizeText(c.name) === normalizeText(directCat));
+          return matchedEntry ? matchedEntry[1].name : directCat;
+        }
+        const directMeta = state.items[item.id];
+        let catId = item.categoryId || directMeta?.categoryId || '';
+        if (!catId && item.name) {
+          const normName = normalizeText(item.name);
+          const foundByName = itemById.find(([_, m]) => m && normalizeText(m.name) === normName);
+          if (foundByName) {
+            catId = foundByName[1].categoryId || '';
+          }
+        }
+        if (catId && state.categories[catId]?.name) {
+          return state.categories[catId].name;
+        }
+        if (directMeta?.categoryName) return directMeta.categoryName;
+        return 'أقسام أخرى';
+      }
+
       validOrders.forEach(o => {
         (o.items || []).forEach(item => {
-          const itemMeta = state.items[item.id];
-          const catId = item.categoryId || itemMeta?.categoryId || '';
-          const catName = state.categories[catId]?.name || 'أقسام أخرى';
+          const catName = resolveItemCategoryName(item);
           if (!grouped[catName]) {
             grouped[catName] = { items: {}, catTotalQty: 0, catTotalRevenue: 0 };
           }
@@ -3454,6 +3491,15 @@
       const kitchenHtml = buildKitchenTicketHTML({ id, ...order });
       await printSingleTicket(kitchenHtml, kitchenPrinter);
       showToastModal(`تمت إعادة طباعة بون التحضير للأوردر #${order.orderNumber}`, '👨‍🍳');
+    };
+
+    window.reprintInvoiceOnlyById = async (id) => {
+      const order = state.orders[id];
+      if (!order) return;
+      const cashierPrinter = localStorage.getItem('cashierPrinter');
+      const invoiceHtml = buildCashierInvoiceHTML({ id, ...order });
+      await printSingleTicket(invoiceHtml, cashierPrinter);
+      showToastModal(`تمت إعادة طباعة الفاتورة للأوردر #${order.orderNumber}`, '🧾');
     };
 
     function getShiftCashAndVisaTotals() {
@@ -3746,7 +3792,7 @@
         }
       }
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalPx}" height="${totalPx}" viewBox="0 0 ${totalPx} ${totalPx}">${rects}</svg>`;
-      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
     }
 
     const WINDOWS_PRINTERS_CACHE_KEY = "rukn_windows_printers_list_v1";
