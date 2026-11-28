@@ -17,16 +17,33 @@
       100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
     }
     @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: #fff !important;
+      }
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; font-family: 'Tajawal', sans-serif !important; }
       #printArea {
-        display: block !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
         position: absolute;
         left: 0;
+        right: 0;
         top: 0;
-        width: 78mm;
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
         font-family: 'Tajawal', sans-serif !important;
         color: #000;
+      }
+      #printArea > div {
+        width: 72mm !important;
+        max-width: 72mm !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
       }
       #printArea img {
         display: block !important;
@@ -34,7 +51,7 @@
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      @page { size: 80mm auto; margin: 1.5mm; }
+      @page { size: 80mm auto; margin: 0mm; }
     }
   </style>
 </head>
@@ -131,6 +148,11 @@
       <button onclick="switchTab('online')" id="topOnlineQuickBtn" class="px-3 py-2 rounded-xl font-black text-xs transition shadow flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950">
         <span>🔔 طلبات أونلاين</span>
         <span id="topOnlineBadge" class="bg-slate-950 text-amber-400 text-xs font-black px-2 py-0.5 rounded-full">0</span>
+      </button>
+
+      <!-- زر فتح درج الكاشير -->
+      <button onclick="openCashDrawer()" id="openCashDrawerBtn" class="px-3 py-2 rounded-xl font-black text-xs transition shadow flex items-center gap-1.5 bg-sky-600 hover:bg-sky-500 text-white">
+        <span>💵 فتح الدرج</span>
       </button>
 
       <button onclick="toggleStoreOpenStatus()" id="storeToggleBtn" class="px-3 py-2 rounded-xl font-black text-xs transition shadow flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
@@ -1546,6 +1568,36 @@
       document.getElementById('toastModal').classList.add('hidden');
     };
 
+    // فتح درج الكاشير عبر أمر طباعة بون صغير سريع للطابعة الحرارية
+    window.openCashDrawer = async () => {
+      const nowObj = new Date();
+      const datePart = todayStr();
+      const timePart = nowObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const userLabel = state.activeSessionUser?.label || state.activeSessionUser?.username || 'الكاشير';
+
+      const drawerTicketHtml = `
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; text-align:center; font-weight:900; border:1px dashed #000;">
+          <div style="font-size:15px;">فتح درج الكاشير</div>
+          <div style="font-size:11px; font-weight:700; margin-top:2px;">المستخدم: ${userLabel}</div>
+          <div style="font-size:11px; font-weight:700;">${datePart} — ${timePart}</div>
+        </div>
+      `;
+
+      const logEntry = {
+        openedAt: Date.now(),
+        date: datePart,
+        time: timePart,
+        user: userLabel
+      };
+      try {
+        push(ref(db, 'drawerOpenLogs'), logEntry).catch(() => {});
+      } catch (e) {}
+
+      const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
+      await printSingleTicket(drawerTicketHtml, cashierPrinter);
+      showToastModal('تم إرسال أمر فتح الدرج بنجاح', '💵');
+    };
+
     const DELIVERY_COLLECT_SOUND_URL = "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3";
     const NEW_ONLINE_ORDER_SOUND_URL = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
 
@@ -1954,7 +2006,7 @@
       const qrUrl = buildMenuQrSvgDataUri(MENU_ORDER_URL);
 
       const html = `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800;">
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800; box-sizing:border-box;">
           <div style="text-align:center; border:2px solid #000; padding:4px; margin-bottom:6px; font-size:18px; font-weight:900;">
             *** أوردر ملغي ***
           </div>
@@ -3624,7 +3676,7 @@
       }
 
       const closingReceiptHtml = `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:6px; border:3px solid #000; font-weight:900;">
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:6px; border:3px solid #000; font-weight:900; box-sizing:border-box;">
           <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:8px;">
             <div style="font-size:21px;">مطعم الركن الشامي</div>
             <div style="font-size:17px; margin-top:3px;">تقرير تقفيل اليومية</div>
@@ -3675,7 +3727,6 @@
       drawFinder(0, size - 7);
       drawFinder(size - 7, 0);
 
-      // Alignment pattern at (18, 18) for Version 2
       for (let r = -2; r <= 2; r++) {
         for (let c = -2; c <= 2; c++) {
           const dark = Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0);
@@ -3683,13 +3734,11 @@
         }
       }
 
-      // Timing patterns
       for (let i = 8; i < size - 8; i++) {
         setModule(6, i, i % 2 === 0, true);
         setModule(i, 6, i % 2 === 0, true);
       }
 
-      // Dark module & reserve format info
       setModule(size - 8, 8, true, true);
       for (let i = 0; i < 9; i++) {
         if (!isFunction[8][i]) setModule(8, i, false, true);
@@ -3700,13 +3749,12 @@
         setModule(size - 1 - i, 8, false, true);
       }
 
-      // Encode Byte Mode data for Version 2-L (34 data codewords, 10 EC codewords)
       const bytes = Array.from(new TextEncoder().encode(text)).slice(0, 32);
       const bits = [];
       const pushBits = (val, len) => {
         for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1);
       };
-      pushBits(0b0100, 4); // Byte mode
+      pushBits(0b0100, 4);
       pushBits(bytes.length, 8);
       for (const b of bytes) pushBits(b, 8);
       const maxDataBits = 34 * 8;
@@ -3726,7 +3774,6 @@
         dataCodewords.push(byteVal);
       }
 
-      // GF(256) Reed-Solomon 10 EC codewords
       const gfExp = new Array(512);
       const gfLog = new Array(256);
       let x = 1;
@@ -3767,7 +3814,6 @@
       }
       while (codeBits.length < 360) codeBits.push(0);
 
-      // Zig-zag placement with mask 0 ((r + c) % 2 === 0)
       let bitPtr = 0;
       let upward = true;
       for (let right = size - 1; right >= 1; right -= 2) {
@@ -3786,7 +3832,6 @@
         upward = !upward;
       }
 
-      // Format info for ECC L (01) + Mask 0 (000) => 0x77C4 (111011111000100)
       const fmtBits = [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0];
       for (let i = 0; i <= 5; i++) modules[8][i] = fmtBits[i] === 1;
       modules[8][7] = fmtBits[6] === 1;
@@ -3948,7 +3993,7 @@
       `).join('');
 
       return `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800;">
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800; box-sizing:border-box;">
           <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:6px;">
             <div style="font-size:21px; font-weight:900;">بون المطبخ</div>
             <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:900; margin-top:4px;">
@@ -3992,7 +4037,7 @@
       `).join('');
 
       return `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800;">
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800; box-sizing:border-box;">
           <div style="text-align:center; margin-bottom:6px;">
             <div style="font-size:21px; font-weight:900;">مطعم الركن الشامي</div>
             <div style="font-size:13px; font-weight:700;">أشهي الماكولات السورية</div>
@@ -4082,13 +4127,9 @@
       printArea.classList.remove('hidden');
       const imgs = Array.from(printArea.querySelectorAll('img'));
       if (imgs.length > 0) {
-        await Promise.all(imgs.map(img => new Promise(resolve => {
-          if (img.complete && img.naturalWidth > 0) return resolve();
-          const timer = setTimeout(resolve, 400);
-          img.onload = () => { clearTimeout(timer); resolve(); };
-          img.onerror = () => { clearTimeout(timer); resolve(); };
-        })));
+        await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = res; img.onerror = res; })));
       }
+      await new Promise(resolve => setTimeout(resolve, 120));
       window.print();
       printArea.classList.add('hidden');
     }
@@ -4096,48 +4137,45 @@
     async function triggerSeparatedPrint(order) {
       const kitchenPrinter = (localStorage.getItem('kitchenPrinter') || '').trim();
       const cashierPrinter = (localStorage.getItem('cashierPrinter') || '').trim();
+
       const kitchenHtml = buildKitchenTicketHTML(order);
+      await printSingleTicket(kitchenHtml, kitchenPrinter);
 
-      if (kitchenPrinter) {
-        await printSingleTicket(kitchenHtml, kitchenPrinter);
-      } else {
-        await printSingleTicket(kitchenHtml, '');
-      }
-
-      // في أوردرات الدليفري يطبع بون المطبخ فقط، وتُطبع الفاتورة عند إرسال الأوردر للطيار
-      if (order.type === 'delivery') {
-        return;
-      }
-
-      const cashierHtml = buildCashierInvoiceHTML(order);
-      if (cashierPrinter) {
+      const isTakeawayOrHasDriver = order.type !== 'delivery' || Boolean(order.driverId);
+      if (isTakeawayOrHasDriver) {
+        const cashierHtml = buildCashierInvoiceHTML(order);
         await printSingleTicket(cashierHtml, cashierPrinter);
-      } else {
-        await printSingleTicket(cashierHtml, '');
       }
     }
 
     window.printCategoryItemsReport = async () => {
       const grouped = buildGroupedCategorySales();
-      let grandTotal = 0;
-      const sectionsHtml = Object.entries(grouped).map(([catName, g]) => {
-        grandTotal += g.catTotalRevenue;
+      const catNames = Object.keys(grouped);
+      if (catNames.length === 0) return showToastModal('لا توجد مبيعات أصناف لطباعتها اليوم!', '⚠️');
+
+      const { totalSales, cashSales, visaSales, validOrders } = getShiftCashAndVisaTotals();
+      const sectionsHtml = catNames.map(catName => {
+        const g = grouped[catName];
         const rows = Object.entries(g.items).map(([iName, info]) => `
-          <tr style="border-bottom:1px dotted #666;">
-            <td style="padding:5px 2px; font-size:15px;">${iName}</td>
-            <td style="text-align:center; padding:5px 2px; font-size:15px;">${info.qty}</td>
-            <td style="text-align:left; padding:5px 2px; font-size:15px;">${info.revenue}</td>
+          <tr style="border-bottom:1px dotted #999;">
+            <td style="padding:4px 0; font-size:13px; font-weight:800;">${iName}</td>
+            <td style="text-align:center; padding:4px 0; font-size:13px; font-weight:900;">${info.qty}</td>
+            <td style="text-align:left; padding:4px 0; font-size:13px; font-weight:900;">${info.revenue}</td>
           </tr>
         `).join('');
+
         return `
-          <div style="margin-top:8px; border:2px solid #000; border-radius:4px; padding:5px;">
-            <div style="font-size:16px; font-weight:900; background:#e5e7eb; padding:4px 6px; border-bottom:1px solid #000;">${catName} (${g.catTotalRevenue} ج.م)</div>
-            <table style="width:100%; border-collapse:collapse; font-weight:900; margin-top:3px; font-family:'Tajawal',sans-serif;">
+          <div style="margin-top:8px; border:2px solid #000; padding:5px;">
+            <div style="display:flex; justify-content:space-between; background:#000; color:#fff; padding:4px 6px; font-size:15px; font-weight:900;">
+              <span>قسم: ${catName}</span>
+              <span>${g.catTotalRevenue} ج.م</span>
+            </div>
+            <table style="width:100%; border-collapse:collapse; margin-top:4px;">
               <thead>
-                <tr style="border-bottom:1px solid #000; font-size:14px;">
-                  <th style="text-align:right; padding:3px 2px;">الصنف</th>
-                  <th style="text-align:center; padding:3px 2px;">العدد</th>
-                  <th style="text-align:left; padding:3px 2px;">الإجمالي</th>
+                <tr style="border-bottom:1px solid #000; font-size:12px; font-weight:900;">
+                  <th style="text-align:right;">الصنف</th>
+                  <th style="text-align:center;">الكمية</th>
+                  <th style="text-align:left;">الإجمالي</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>
@@ -4147,42 +4185,39 @@
       }).join('');
 
       const html = `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:5px; border:3px solid #000; font-weight:900;">
-          <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:6px;">
-            <div style="font-size:21px;">مطعم الركن الشامي</div>
-            <div style="font-size:16px; margin-top:2px;">تقرير مبيعات الأصناف (80mm)</div>
-            <div style="font-size:12px; font-weight:700; margin-top:2px;">${todayStr()} — ${new Date().toLocaleTimeString('ar-EG')}</div>
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:4px; font-weight:800; box-sizing:border-box;">
+          <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:6px;">
+            <div style="font-size:20px; font-weight:900;">مطعم الركن الشامي</div>
+            <div style="font-size:16px; font-weight:900;">تقرير مبيعات الأصناف حسب الأقسام</div>
+            <div style="font-size:12px;">${new Date().toLocaleString('ar-EG')}</div>
           </div>
-          ${sectionsHtml || '<div style="text-align:center; padding:12px; font-size:15px;">لا توجد مبيعات أصناف</div>'}
-          <div style="margin-top:10px; font-size:18px; display:flex; justify-content:space-between; border-top:2px solid #000; padding-top:6px;">
-            <span>إجمالي الأصناف:</span>
-            <span>${grandTotal} ج.م</span>
+          ${sectionsHtml}
+          <div style="margin-top:10px; border-top:2px solid #000; padding-top:6px; font-size:14px; font-weight:900; line-height:1.7;">
+            <div style="display:flex; justify-content:space-between;"><span>عدد الأوردرات:</span><span>${validOrders.length}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>مبيعات النقدي:</span><span>${cashSales} ج.م</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>مبيعات الفيزا:</span><span>${visaSales} ج.م</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:17px; border-top:1px dashed #000; padding-top:4px;"><span>الإجمالي العام:</span><span>${totalSales} ج.م</span></div>
           </div>
           ${getStorePhonesFooterHTML()}
         </div>
       `;
-
       await printSingleTicket(html, localStorage.getItem('cashierPrinter'));
-      showToastModal('تمت طباعة تقرير الأصناف بالأقسام بمقاس 80mm', '🖨️');
     };
 
     window.printShiftSummary = async () => {
       const { validOrders, totalSales, cashSales, visaSales } = getShiftCashAndVisaTotals();
       const html = `
-        <div style="width:76mm; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:6px; border:3px solid #000; font-weight:900;">
-          <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:8px;">
-            <div style="font-size:21px;">مطعم الركن الشامي</div>
-            <div style="font-size:17px; margin-top:2px;">ملخص الوردية (80mm)</div>
-            <div style="font-size:12px; font-weight:700; margin-top:2px;">${todayStr()} — ${new Date().toLocaleTimeString('ar-EG')}</div>
+        <div style="width:72mm; margin:0 auto; font-family:'Tajawal',sans-serif; direction:rtl; color:#000; padding:6px; border:2px solid #000; font-weight:900; box-sizing:border-box;">
+          <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:6px;">
+            <div style="font-size:19px;">مطعم الركن الشامي</div>
+            <div style="font-size:15px;">تقرير ملخص الوردية</div>
+            <div style="font-size:12px; font-weight:700;">${new Date().toLocaleString('ar-EG')}</div>
           </div>
-          <div style="border:2px solid #000; padding:8px; font-size:16px; line-height:1.85;">
-            <div style="display:flex; justify-content:space-between;"><span>عدد الأوردرات:</span><span>${validOrders.length}</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>مبيعات النقدي:</span><span>${cashSales} ج.م</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>مبيعات الفيزا:</span><span>${visaSales} ج.م</span></div>
-            <div style="display:flex; justify-content:space-between; font-size:19px; border-top:2px solid #000; padding-top:6px; margin-top:6px;">
-              <span>الإجمالي العام:</span>
-              <span>${totalSales} ج.م</span>
-            </div>
+          <div style="font-size:14px; line-height:1.7;">
+            <div>عدد الأوردرات المنفذة: ${validOrders.length}</div>
+            <div>مبيعات النقدي (كاش): ${cashSales} ج.م</div>
+            <div>مبيعات الفيزا (Visa): ${visaSales} ج.م</div>
+            <div style="font-size:17px; border-top:1px dashed #000; margin-top:4px; padding-top:4px;">إجمالي المبيعات: ${totalSales} ج.م</div>
           </div>
           ${getStorePhonesFooterHTML()}
         </div>
